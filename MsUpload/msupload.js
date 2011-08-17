@@ -12,6 +12,7 @@ function loadMsUpload(){
   userName = info[1];
   autoKat = info[2];
   autoIndex = info[3];
+  autoChecked = info[4];
   
   var categories = new Array();
   //var anzPictures = 0 ;  
@@ -103,7 +104,7 @@ function loadMsUpload(){
       //autokat
       if(autoKat){
         if(wgNamespaceNumber==14){
-          new Element('input', {id:'kat-'+file.id,name:'kat['+file.id+']', 'class':'check_index',type: 'checkbox', 'checked': true}).inject(file.ui.title, 'after');
+          new Element('input', {id:'kat-'+file.id,name:'kat['+file.id+']', 'class':'check_index',type: 'checkbox', 'checked': autoChecked}).inject(file.ui.title, 'after');
     	    new Element('span', {'class':'check_span',html: wgPageName}).inject(file.ui.title, 'after');
     	    
         }
