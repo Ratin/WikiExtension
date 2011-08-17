@@ -4,7 +4,7 @@ function wfMsUploadRender() {
   
   #global $wgOut,$wgUser,$wgUserName,$wgScriptPath;
   global $output,$wgUser;
-  global $wgMSU_AutoKat, $wgMSU_AutoIndex;
+  global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat;
 
 
   if( !$wgUser->isAllowed( 'upload' ) ) {
@@ -28,7 +28,7 @@ function wfMsUploadRender() {
     }  
    
   #return $output."|".$wgUser->getName();
-  return $output."|".$wgUser->getName()."|".$wgMSU_AutoKat."|".$wgMSU_AutoIndex;
+  return $output."|".$wgUser->getName()."|".$wgMSU_ShowAutoKat."|".$wgMSU_AutoIndex."|".$wgMSU_CheckedAutoKat;
 }
 
 $wgAjaxExportList[] = 'wfMsUploadCheck';
