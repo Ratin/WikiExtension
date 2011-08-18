@@ -25,7 +25,7 @@ function loadMsUpload(){
               
   function ajax_check(file,check,firsttime,ausgabe){
         
-        ausgabe.innerHTML = "<img src='extensions/MsUpload/images/anim.gif'>";
+        ausgabe.innerHTML = "<img src='extensions/MsUpload/images/loading.png'>";
 
         sajax_do_call( 'wfMsUploadCheck', [file.extension],
         function (response) {
@@ -105,7 +105,7 @@ function loadMsUpload(){
       if(autoKat){
         if(wgNamespaceNumber==14){
           new Element('input', {id:'kat-'+file.id,name:'kat['+file.id+']', 'class':'check_index',type: 'checkbox', 'checked': autoChecked}).inject(file.ui.title, 'after');
-    	    new Element('span', {'class':'check_span',html: wgPageName}).inject(file.ui.title, 'after');
+    	    new Element('span', {'class':'check_span',html: wgPageName.replace(/_/g, " ")}).inject(file.ui.title, 'after');
     	    
         }
       } 
@@ -222,7 +222,7 @@ function loadMsUpload(){
         bar.set('styles', {'display': 'none'});
       
         warning = new Element('span', {id: 'warning-'+file.id, 'class':'warning'}).inject(file.ui.element, 'bottom');
-        warning.innerHTML = "<img src='extensions/MsUpload/images/anim.gif'>";
+        warning.innerHTML = "<img src='extensions/MsUpload/images/loading.png'>";
 
         ajax_check(file,file.name,true,warning); 		
         
