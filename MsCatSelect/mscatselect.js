@@ -90,7 +90,7 @@ function addKat(new_kat) {
   }
   if (new_kat!=1) {
 
-        msc_added = document.getElementById("msc_added"); 
+        var msc_added = document.getElementById("msc_added"); 
         checkbox = new Element('input', {'class':'msc_checkbox',type:'checkbox',name:'SelectCategoryList[]',value:new_kat,'checked': true}).inject(msc_added, 'after');
         sortkey = add_sortkey(checkbox,new_kat,wgTitle);
         br = new Element('span').inject(sortkey, 'after');
