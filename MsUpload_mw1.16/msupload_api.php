@@ -7,15 +7,16 @@ chdir("../../");
 
 require_once ( 'includes/WebStart.php');
 
-if(isset($_POST['user'])){
-$wgUser = User::newFromName($_POST['user']); 
+if(isset($_GET['user'])){
+$wgUser = User::newFromName($_GET['user']); 
 }
-
-global $wgVersion;
-$version = explode(".", $wgVersion); #$version[0] = 1; $version[1] = 17; $version[2] = 0;
     
 #echo $wgUser->getToken();
 #echo $wgUser->getName();
+
+#apiupload.php
+#functions in UploadBase.php
+$mUpload = new UploadFromFile();
 
 global $sCreateIndexFilepath;
 
@@ -27,59 +28,11 @@ $watch = false;
 $error = false;
 
 
+if (isset($_FILES['Filedata']['name'])) {     
 
-if (isset($_FILES['file']['name'])) {     
-
-  $filename = $_FILES['file']['name'];
-
-	
-	if ($_POST['name'] != $filename) { //name wurde geändert
-		
-		$filename = $_POST['name'];
-		echo 'change !!!';
-	}
-
-
-        $wgEnableWriteAPI = true;    
-        $params = new FauxRequest(array (
-        	'action' => 'upload',
-        	'file' => $_FILES['file'],
-        	'filename' => $filename,
-        	'filesize' => $_FILES['file']['size'],
-        	'comment'=> $comment,
-        	'ignorewarnings'=> true, //sonst wird nix ueberschrieben
-        	'token' => $wgUser->editToken(),//$token."%2B%5C",
-        ));
-
-        $enableWrite = true; // This is set to false by default, in the ApiMain constructor
-        $api = new ApiMain($params,$enableWrite);
-        #$api = new ApiMain($params);
-        $api->execute();
-        $data = & $api->getResultData();
-  
-  
-  echo "yeah".$data;    
-  return $data; //.$data;
-
-
-
-}
-
-
-
-
-?>
-<!--
- 
-
-
-if (isset($_FILES['file']['name'])) {     
-
-  $filename = $_FILES['file']['name'];
+  $filename = $_FILES['Filedata']['name'];
   
   $anz = 1;
-  
-  /* xxxx
   #  if (array_key_exists('name_hidden', $_POST)) {
           foreach( $_POST['name_hidden'] as $nam ) {
             $change = explode("|", $nam); 
@@ -92,7 +45,6 @@ if (isset($_FILES['file']['name'])) {
             $anz++;
           } //foreach
   #  } //if 
-  */  #xxxxx
     
   //Dateinamen überprüfen ob indiziert werden soll
   #wfFileIndexer($filename,false);
@@ -106,21 +58,12 @@ if (isset($_FILES['file']['name'])) {
       }  
     } 
    }
-  
-  /* xxxxxx 
+   
   if(isset($_POST['kat'][$ids])){ #kategorie gesetzt
     $comment = "[[".$_POST['kat_hidden']."]]";  
   }  
-  */ #xxxxxxx
-
-
-  if($version[1] == "17"){ #neue version
-    $mUpload->initialize($filename, $request->getUpload( 'file' ));
-  } else { # 16er version
-    $mUpload->initialize($filename, $_FILES['file']['tmp_name'], $_FILES['file']['size']);
-  }
-  
-  
+    
+  $mUpload->initialize($filename, $_FILES['Filedata']['tmp_name'], $_FILES['Filedata']['size']);
 
 }//if isset
 
@@ -316,10 +259,4 @@ if (isset($_REQUEST['response']) && $_REQUEST['response'] == 'xml') {
 
 	echo json_encode($return);
 }
-exit(0);
-
-
-
-
 ?>
--->

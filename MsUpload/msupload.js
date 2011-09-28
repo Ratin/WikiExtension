@@ -1,44 +1,300 @@
+var autoKat = false;
+var autoIndex = false;
+var autoChecked = false;
 
-function loadMsUpload(){
+//jQuery(document).ready(function() {
+$(document).ready(function () {
+//$(function() {
+  //damit später die progressbar zur verfügung steht 
+  //mw.loader.using('jquery.ui.progressbar');
+  
   
   sajax_do_call( 'wfMsUploadRender', [], 
   function (result) {
-  
-  info = result.responseText.split('|'); 
-  //upload div anlegen
-  upload_div = new Element('div', { id: 'upload_div'}).inject($('toolbar'), 'bottom');
-  upload_div.innerHTML = info[0];
 
-  userName = info[1];
-  autoKat = info[2];
-  autoIndex = info[3];
-  autoChecked = info[4];
-  
-  var categories = new Array();
-  //var anzPictures = 0 ;  
-  
-  new Element('input', {type:'hidden',value:wgPageName, name: 'kat_hidden'}).inject($('upload-form'), 'bottom');  
-  new Element('input', {type:'hidden',id: 'upload_gallery',value:''}).inject($('upload_all'), 'after');  
+    
+    info = result.responseText.split('|'); 
+    
+    //userName = info[0];
+    autoKat = info[1];
+    autoIndex = info[2];
+    autoChecked = info[3];
+    
+    //upload button anlegen
+    var upload_button = $(document.createElement("a")).attr({ 
+      id: "upload_select",
+      title: "Dateien hochladen"
+    }).append('<img src="extensions/MsUpload/images/button_upload.gif">').appendTo("#toolbar"); 
+    
+    
+    //upload div anlegen  
+    var upload_div = $(document.createElement("div")).attr("id","upload_div").appendTo("#toolbar"); 
+	
+    var status_div = $(document.createElement("div")).attr("id","upload_status").html('No runtime found.').appendTo(upload_div); 
+    var upload_list = $(document.createElement("ul")).attr("id","upload_list").appendTo(upload_div);
+    var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(upload_div).hide();
+    var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(upload_div).hide();
+    
+    var gallery_arr = new Array();
+    
+    if(mw.loader){
+      //damit später die progressbar zur verfügung steht 
+      mw.loader.load('jquery.ui.progressbar');
+    }
 
-              
-              
-              
-  function ajax_check(file,check,firsttime,ausgabe){
+     
+       var uploader = new plupload.Uploader({
+    		runtimes : 'html5,flash',
+    		browse_button : 'upload_select',
+    		container : 'toolbar',
+    		max_file_size : '100mb',
+    		drop_element: 'upload_drop',
+    		unique_names: false,
+    		
+    		multipart_params: { "user": wgUserName, "kat": wgPageName} ,     
         
-        ausgabe.innerHTML = "<img src='extensions/MsUpload/images/loading.png'>";
+    		url : 'extensions/MsUpload/msupload_api.php',
+    		flash_swf_url : 'extensions/MsUpload/js/plupload.flash.swf',
+    		//silverlight_xap_url : 'extensions/MsUpload_plupload/js/plupload.silverlight.xap',
+    		// Specify what files to browse for
+	      /*
+        filters : [
+	            {title : "Image files", extensions : "jpg,gif,png"},
+	            {title : "Zip files", extensions : "zip"}
+        ],
+        */
+    		//resize : {width : 320, height : 240, quality : 90}
+    	});
+    
+    	uploader.bind('Init', function(up, params) {
+    		status_div.html("Status: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop)).hide();
+    		
+    		if(up.features.dragdrop){
+	        	
+	        	var upload_drop = $(document.createElement("div")).attr("id","upload_drop").attr("class","drop").insertAfter(status_div); 
+	        	upload_drop.bind('dragover',function(event){
+					   $(this).addClass('drop_over');
+				}).bind('dragleave',function(event){
+					   $(this).removeClass('drop_over');
+				}).bind('drop',function(event){
+					   $(this).removeClass('drop_over');
+				});
 
-        sajax_do_call( 'wfMsUploadCheck', [file.extension],
+	        }
+    		
+    	});
+    
+    
+    	uploader.bind('FilesAdded', function(up, files) {
+    		$.each(files, function(i, file) {
+    			
+    			
+	    		file.li = $(document.createElement("li")).attr("id",file.id).attr("class","file").appendTo(upload_list);
+	            
+	            file.li.type = $(document.createElement("span")).attr("class","file-type").appendTo(file.li);
+	            file.li.title = $(document.createElement("span")).attr("class","file-title").text(file.name).appendTo(file.li);
+	            file.li.size = $(document.createElement("span")).attr("class","file-size").text(plupload.formatSize(file.size)).appendTo(file.li);
+	            file.li.warning = $(document.createElement("span")).attr("class","file-warning").appendTo(file.li);
+	            
+	            check_extension(file,uploader); 
+            
+    		});
+        
+        
+        
+    		up.refresh(); // Reposition Flash/Silverlight
+    	});
+    
+      uploader.bind('QueueChanged', function(up) {
+		
+
+        if(up.files.length==1){
+        start_button.html('Hier klicken um diese Datei hochzuladen').show();
+        }else if(up.files.length>1){
+        start_button.html('Hier klicken um alle Dateien hochzuladen').show();
+        }else{
+         start_button.hide();
+         gallery_insert.hide();
+        }
+        
+      });
+    
+    	uploader.bind('UploadProgress', function(up, file) {
+    	
+    		$('#' + file.id + " span.file-progress-state").html(file.percent + "%");
+    	  	//file.li.progress_state.html(file.percent + "%");
+    	  
+        	$('#' + file.id + " div.file-progress-bar").progressbar({value: file.percent});
+        	//file.li.progress_bar.progressbar({value: file.percent});
+      });
+    
+    	uploader.bind('Error', function(up, err) {
+    		//$('#upload_list')
+        $('#' + err.file.id + " span.file-warning").html("Error: " + err.code +
+    			", Message: " + err.message +
+    			(err.file ? ", File: " + err.file.name : "") 
+    			
+    		);
+    
+    		up.refresh(); // Reposition Flash/Silverlight
+    	});
+    
+    	uploader.bind('FileUploaded', function(up, file) {
+    		//$('#' + file.id + " b").html("100%");
+    		
+    		file.li.title.unbind('click');
+			file.li.title.unbind('mouseover');
+			file.li.type.addClass('ok');
+            file.li.addClass('green');
+            file.li.warning.fadeOut("slow");
+            //file.li.progress.fadeOut("slow");
+            $('#' + file.id + " div.file-progress").fadeOut("slow");
+            $('#' + file.id + " div.file-progress-bar").fadeOut("slow");
+            $('#' + file.id + " div.file-progress-state").fadeOut("slow");
+            	
+    		if(file.kat == true){ //soll die Kategorie gesetzt werden
+		        
+		         sajax_do_call( 'wfMsUploadSaveKat', [file.name,wgPageName],
+		         function (response) {
+		             //alert(response.responseText);
+		         });
+		        
+		     } //if
+    		
+    		$(document.createElement("a")).text(unescape('als Link einf\u00Fcgen')).click(function(e) { //click
+  			
+				msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link	
+				
+        	}).appendTo(file.li);
+    		
+
+
+            if (file.extension == "pic"){
+        		  
+        		gallery_arr.push(file.name);	
+        		 if(gallery_arr.length>=2){
+        		  		
+        		  		gallery_insert.html('Bilder als Gallery einfügen').show().click(function(e) { //click
+  			
+							gallery_text = "Image:";
+							gallery_text += gallery_arr.join("\nImage:");
+							gallery_text +='\n';
+							
+							msu_vorlage_insert(gallery_text,'<gallery>\n\n','\n</gallery>\n'); 
+							
+        				});
+        		  		
+        		  } else {
+        		  		
+        		  	gallery_insert.html('');
+        		  }
+
+            		  
+        		
+        		$(document.createElement("span")).text(' | ').appendTo(file.li);
+        		$(document.createElement("a")).text(unescape('als Bild einf\u00Fcgen')).click(function(e) { //click
+        			
+        			msu_vorlage_insert('[[Image:'+file.name+'|400px]]','','');
+        			
+        		}).appendTo(file.li);
+        		
+                
+        	} else if (file.extension == "mov") { //pic  
+        		  
+        		
+        		$(document.createElement("span")).text(' | ').appendTo(file.li);
+        		$(document.createElement("a")).text(unescape('als Film einf\u00Fcgen')).click(function(e) { //click
+        			
+        			msu_vorlage_insert('[[Media:'+file.name+']]','','');
+        			
+        		}).appendTo(file.li);
+
+        	} //movie
+        		  
+    	});
+    	
+    	
+    	$('#upload_files').click(function(e) {
+    		uploader.start();
+    		e.preventDefault();
+    	});
+    	
+    /*
+    $('uploadfiles').onclick = function() {
+          	uploader.start();
+          	return false;
+          };
+        */
+                
+   uploader.init();
+   
+             
+  
+  
+  })
+  
+});//funktion
+
+
+function check_extension(file,uploader){
+        
+        //file_li = file.li;
+        file.li.warning.html("<img src='extensions/MsUpload/images/loading.png'>");
+
+        sajax_do_call( 'wfMsUploadCheck', [file.name],
         function (response) {
 
-        file.extension_check = response.responseText;
-        if (file.extension_check == 1 || file.extension_check =='pic'){
+        file.extension = response.responseText;
+        
+        if (file.extension == 1 || file.extension =='pic'){
 
-          sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [check], 
+
+            check_file(file.name,file.li);
+            
+                //Datei ist ein Bild
+                if(file.extension == 'pic'){
+                  file.li.type.addClass('picture');
+                } 
+        			
+              		
+	            file.li.cancel = $(document.createElement("span")).attr("class","file-cancel").attr("title","Upload abbrechen").click(function(e) {
+	                file.li.fadeOut("slow");
+	                uploader.removeFile(file);
+	            }).appendTo(file.li);
+	            
+            	build(file); // alles aufbauen
+
+            	
+        	 } else if (file.extension == "") { //überprüfung hat zu lange gedauert
+           
+               check_extension(file,firsttime);
+           	
+        	 } else { // falscher Dateityp
+
+            
+             	file.li.warning.html('Es sind nur folgende Dateitypen erlaubt: '+response.responseText);
+            
+            	file.li.type.addClass('document');
+            	file.li.addClass('yellow');
+            	uploader.removeFile(file); //damit Datei nicht mehr hochgeladen wird
+            	
+            	file.li.click(function(e) { //bei klick li löschen
+	                file.li.fadeOut("slow");
+	            })
+
+           }//else
+    });
+}
+
+function check_file(filename,file_li){
+
+          file_li.warning.html("<img src='extensions/MsUpload/images/loading.png'>");
+          sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename], 
         			function (result) {
         				warning = result.responseText;
 
-        				if ( warning == '' || warning == '&nbsp;' ) {
-        				ausgabe.innerHTML = "Datei kann hochgeladen werden";
+        				if ( warning == '' || warning == '&nbsp;' ||warning =='&#160;') {
+        				file_li.warning.html("Datei kann hochgeladen werden");
 
         				} else {
                 // errorhandling
@@ -46,278 +302,84 @@ function loadMsUpload(){
                 warning = warning.substring(0,warning.length-(warning.length-40));
                 
                   if (warning == "<p>Eine Datei mit diesem Namen wurde sch" || warning == "Eine Datei mit diesem Namen wurde schon ") {
-                    ausgabe.innerHTML = "Eine Datei mit diesem Namen wurde schon einmal hochgeladen und zwischenzeitlich wieder gelöscht.";
+                    file_li.warning.html("Eine Datei mit diesem Namen wurde schon einmal hochgeladen und zwischenzeitlich wieder gelöscht.");
                   } else if(warning == "Eine Datei mit diesem Namen existiert be" || warning == "e Datei mit diesem Namen existiert berei") {
-                    ausgabe.innerHTML =  "Eine Datei mit diesem Namen existiert bereits. Beim Hochladen wird die alte Datei überschrieben.";
+                    file_li.warning.html("Eine Datei mit diesem Namen existiert bereits. Beim Hochladen wird die alte Datei überschrieben.");
                   } else if(warning == " Dateiname beginnt mit <b>„IMG“</b>. Die") {
-                    ausgabe.innerHTML =  "Datei kann hochgeladen werden";
+                    file_li.warning.html("Datei kann hochgeladen werden");
                   } else {
-                    ausgabe.innerHTML = warning;
+                    file_li.warning.html(warning);
                   }
                 // errorhandling
              
                 } //else
        				
-        			});
-        			
-        			if(firsttime==true){ //nur beim ersten mal
-              build(file); // alles aufbauen
-              }
-        			
-        	 } else if (file.extension_check == "") { //überprüfung hat zu lange gedauert
-           
-               ajax_check(file,check,firsttime,ausgabe);
-           	
-        	 } else {
-
-            new Element('li', {
-				    //html: file.name +' Es sind nur folgende Dateitypen erlaubt: '+response.responseText,
-				    'class': 'file-invalid',
-				    events: {
-						click: function() {
-						
-							this.destroy();
-						}}
-			      }).adopt(
-					   new Element('span', {html: '<i>'+file.name +'</i> Es sind nur folgende Dateitypen erlaubt: '+response.responseText})
-				    ).inject(file.ui.element, 'before');
-			
-				    file.remove();
-
-           }//else
-           });
-  }		
-  
-  function build(file){
-   
-     //Datei ist ein Bild
-     if(file.extension_check == 'pic'){
-        //anzPictures++;
-        file.ui.element.addClass('picture'); //set('class', 'picture');
-     } 
-     
-      //fileindexer
-      if(autoIndex){
-        new Element('input', {name:'fi['+file.id+']', 'class':'check_index',type: 'checkbox', 'checked': true}).inject(file.ui.title, 'after');
-    	  new Element('span', {'class':'check_span',html: 'Index erstellen'}).inject(file.ui.title, 'after');
-      }
-      //autokat
-      if(autoKat){
-        if(wgNamespaceNumber==14){
-          new Element('input', {id:'kat-'+file.id,name:'kat['+file.id+']', 'class':'check_index',type: 'checkbox', 'checked': autoChecked}).inject(file.ui.title, 'after');
-    	    new Element('span', {'class':'check_span',html: wgPageName.replace(/_/g, " ")}).inject(file.ui.title, 'after');
-    	    
-        }
-      } 
-      
-    	name_hidden = new Element('input', {type:'hidden',value:file.name, name: 'name_hidden[]',id: 'hidden-'+file.id}).inject(file.ui.title, 'before');
-    		 
-    		 
-      change = new Element('a', {id: 'change-'+file.id,text: 'Datei umbenennen'}).inject(file.ui.title, 'after');
-    	change.addEvent('click', function() {
-
-    		  this.set('styles', {'display': 'none'});
-          file.ui.title.set('styles', {'display': 'none'});
-    		  
-          input_change = new Element('input', {'class':'input_change',size:file.name.length,id: 'input_change-'+file.id, value:file.name}).inject(file.ui.title, 'before');
-    		  input_change.addEvent('change', function() {
-              
-              $('hidden-'+file.id).value = file.name+"|"+this.value;
-              ajax_check(file,this.value,false,$('warning-' + file.id));
-    		  
-    		  }.bind(input_change));
-
-    		}.bind(change));
-  
-  
-  } 
-	
-	/* Uploader instance */
-	var ids = 0;
-	 
-	var up = new FancyUpload3.Attach('upload_list', '#show_upload, #demo-attach-2', {
-		path: 'extensions/MsUpload/source/Swiff.Uploader.swf',
-    url: 'extensions/MsUpload/msupload_api.php?user='+userName,
-		fileSizeMax: 100 * 1024 * 1024, //100MB
-		//pictureExtensions: 'jpg', //so könnten variablen übergeben werden
-    //allowDuplicates: true;        
-		verbose: true,
-
-    //beim laden alle kategorien abfragen
-    onBeforeStart: function() {
-	     up.setOptions({
-		   data: $('upload-form').toQueryString()
-	     });
-    },
-
-    onLoad:function() {
-    
-   $('upload_all').addEvent('click', function() {
-				up.start(); // start upload  
-				return false;
-			});
-	
-    },
-
-		onSelectFail: function(files) {
-			files.each(function(file) {
-				new Element('li', {
-					'class': 'file-invalid',
-					events: {
-						click: function() {
-							this.destroy();
-						}
-					}
-				}).adopt(
-					new Element('span', {html: file.validationErrorMessage || file.validationError})
-				).inject(this.list, 'bottom');
-			}, this);	
-		},
-		
-		
-		onBeforeFileStart: function(file) {
-      //wenn der automatische upload stoppen soll alles unter onFileStart
-       if(ids != file.id ) {
-          this.fileStop(file);
-        } else {
-          //starten
-        }  
-    },
-
-    onFileStart: function(file) {
-    
-        //$('upload_gallery').innerHTML = anzPictures;
-   
-         //damit der upload fortschritt angezeigt wird
-         bar = $('bar-' + file.id);
-         bar.set('styles', {'display': 'inline'});
-         $('change-'+file.id).destroy(); //umbenennen löschen
-         
-         if ($('input_change-' + file.id)){
-         if(input_change = $('input_change-' + file.id).value){
-           $('input_change-' + file.id).destroy(); 
-           file.ui.title.set('styles', {'display': 'inline'});
-           file.ui.title.innerHTML = input_change;
-         } //if 
-         } //if
-
-        
-    },
-    
-		
-		onSelectSuccess: function(files) {
-		
-		  //fehlerhafte löschen
-		  $$('#upload_list .file-invalid').each(function(invalid){
-        invalid.destroy();
-      });
-      //fehlerhafte löschen
-      
-      $('upload_all').innerHTML = "Hier klicken um alle Dateien hochzuladen";
-
-      files.each(function(file) {
-				
-				
-        bar = $('bar-' + file.id);
-        bar.set('styles', {'display': 'none'});
-      
-        warning = new Element('span', {id: 'warning-'+file.id, 'class':'warning'}).inject(file.ui.element, 'bottom');
-        warning.innerHTML = "<img src='extensions/MsUpload/images/loading.png'>";
-
-        ajax_check(file,file.name,true,warning); 		
-        
-			}, this);	
-		
-		},       
-
-
-		onFileComplete:function(file,response){
-		
-		//this.fileStop('file-'+file.id);
-		//file.stop();
-		  if($('kat-' + file.id)){
-		  if($('kat-' + file.id).checked == true){ //soll die Kategorie gesetzt werden
-        
-          sajax_do_call( 'wfMsUploadSaveKat', [file.name,wgPageName],
-          function (response) {
-             //alert(response.responseText);
-          });
-        
-      } //if
-      } //if
-
-		},
-		
-    onFileProgress:function(file){
-     
-
-    },
-    
-
-		onFileSuccess: function(file,response) {
-		
-
-		},
- 
-    onFileRemove:function(file){
-      //Datei ist ein Bild
-      //if(file.extension_check == 'pic'){
-      //  anzPictures--;
-      //} 
-
-    },
- 
- 
-		onFileError: function(file) {
-			file.ui.cancel.set('html', 'Retry').removeEvents().addEvent('click', function() {
-				file.requeue();
-				return false;
-			});
- 
-			new Element('span', {
-				html: file.errorMessage,
-				'class': 'file-error'
-			}).inject(file.ui.cancel, 'after');
-		},
- 
-		onFileRequeue: function(file) {
-			file.ui.element.getElement('.file-error').destroy();
- 
-			file.ui.cancel.set('html', 'Cancel').removeEvents().addEvent('click', function() {
-				file.remove();
-				return false;
-			});
- 
-			this.start();
-		}
- 
-	});
- 
-  
-}); //function
+        	});
 }
 
 
-function create_button(beschr,bild,funktion){	
+function build(file){
+   
 
-	var toolbar = document.getElementById("toolbar");
-	if(!toolbar){
-		return false
-	}
-	var button = document.createElement("a");
-	button.href = "#";
-  button.title = "Dateien hochladen";
-  button.id = "show_upload";
-	//button.onclick = function () {
-	//funktion();
-	//return false;
-	//};
- 
-	var add_image=document.createElement('img');
-  add_image.src= bild;
-	toolbar.appendChild(button);
-	button.appendChild(add_image);
-  loadMsUpload();
-  
-	return true
-} 
+      //fileindexer
+      if(autoIndex){
+        	// new Element('input', {name:'fi['+file.id+']', 'class':'check_index',type: 'checkbox', 'checked': true}).inject(file.ui.title, 'after');
+    	  //new Element('span', {'class':'check_span',html: 'Index erstellen'}).inject(file.ui.title, 'after');
+    	  //$(document.createElement("span")).attr("class","check_span").text('Index erstellen').appendTo(file_li);
+    	  //$(document.createElement("span")).attr("class","check_span").text('Index erstellen').appendTo(file_li); 
+    	  
+      }
+
+      //autokat
+      if(autoKat){
+      	file.kat = autoChecked; //vordefinieren
+        if(wgNamespaceNumber==14){
+        	
+        	$(document.createElement("input")).attr({
+        		'class':'check_index',	
+        		type: 'checkbox',
+        		'checked': autoChecked,
+        		//name:'kat['+file.id+']',
+        	}).change(function(e) {
+	        
+	          file.kat = this.checked; // speichern
+	        
+	        }).appendTo(file.li);
+    	  	
+    	  	$(document.createElement("span")).attr("class","check_span").text(wgPageName.replace(/_/g, " ")).appendTo(file.li); 
+    	  
+   
+        }
+      } 
+      
+
+    	file.li.title.mouseover(function() { //mouseover
+			$(this).addClass('title_over');
+    	 }).mouseleave(function() {		//mouseout	
+    		$(this).removeClass('title_over');
+  		}).click(function(e) { //click
+  			
+  			$(this).hide();
+  			var input_change = $(document.createElement("input")).attr({
+	          'class':'input_change',
+	          size:file.name.length,
+	          //id: 'input_change-'+file.id
+	          name:'input_change',
+	          value:file.name
+        	}).insertAfter($(this));  
+        
+	        input_change.change(function(e) {
+	        
+	          file.name = this.value; //neuen namen speichern
+	          check_file(this.value,file.li);
+	        
+	        });
+  			
+  		});
+
+    file.li.append('<div class="file-progress"><div class="file-progress-bar"></div><span class="file-progress-state"></span></div>'); 
+    
+
+	
+
+} 		  

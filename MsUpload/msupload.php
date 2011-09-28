@@ -1,5 +1,4 @@
 <?php
-
 $dir = dirname(__FILE__).'/';
 
 if(! defined('MEDIAWIKI')) {
@@ -10,46 +9,48 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsUpload',
 	'url'  => 'http://www.ratin.de/wiki.html',
 	'description' => 'Diese Extension macht Uploads/Multiuploads direkt im Editor möglich',
-	'version' => '7.9.2',
+	'version' => '8.0',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin',
 );
 
 $wgAvailableRights[] = 'msupload';
 
 $wgHooks['EditPage::showEditForm:initial'][] = 'MSLSetup';
-#$wgHooks['EditPage::showEditForm:initial'][] = 'wfMsUploadRender';
 require_once($dir.'msupload_body.php');
   
 
 function MSLSetup() {
 
-  global $wgOut, $wgScriptPath,$wgJsMimeType,$wgHooks,$wgFrameworkLoaded,$wgTitle;
-
-
+  global $wgOut, $wgScriptPath,$wgFrameworkLoaded,$wgTitle;
+  global $wgVersion;
+  
+  $version = explode(".", $wgVersion); #$version[0] = 1; $version[1] = 17; $version[2] = 0;
 	$path =  $wgScriptPath.'/extensions/MsUpload';
   
-  if (!$wgFrameworkLoaded){
-  $wgOut->addScriptFile( $path.'/mootools-core-1.3.js' );
-  $wgFrameworkLoaded = true;  
-  }
-	
+
   if(isset($wgTitle) AND $wgTitle->getArticleID()!=0){
     
-    $wgOut->addScriptFile( $path.'/source/Fx.ProgressBar.js' );
-    $wgOut->addScriptFile( $path.'/source/Swiff.Uploader.js' );
-    $wgOut->addScriptFile( $path.'/source/FancyUpload3.Attach.js' );
-  
-  		$wgOut->addLink( array(
-  			'rel' => 'stylesheet',
-  			'type' => 'text/css',
-  			'href' => $path.'/upload.css'
-  		));
-  
-    $wgOut->addScriptFile( $wgScriptPath.'/extensions/MsInsert/msinsert.js' );
+    
+    
+   if($version[1] < '17'){  #framework bei versionen < 17 laden
+   
+      if (!$wgFrameworkLoaded){
+        $wgOut->addScriptFile($path.'/js/jquery.min.js' );
+        $wgFrameworkLoaded = true;  
+      }
+      $wgOut->addScriptFile($path.'/js/jquery.ui.progressbar.js' ); //progressbar
+      
+    } //if
+    
+    $wgOut->addScriptFile($path.'/js/plupload.full.js' );
   	$wgOut->addScriptFile( $path.'/msupload.js' );
-  	
-    $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">hookEvent(\"load\", function(){create_button('Upload2','extensions/MsUpload/images/button_upload.gif',loadMsUpload);});</script>\n" );
+    $wgOut->addScriptFile( $path.'/js/msupload_insert.js' );
+    	
+    $wgOut->addLink( array(
+    			'rel' => 'stylesheet',
+    			'type' => 'text/css',
+    			'href' => $path.'/msupload.css'
+    ));
   }
-
   return true;
 }

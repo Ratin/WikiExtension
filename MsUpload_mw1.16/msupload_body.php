@@ -1,7 +1,8 @@
 <?php
 $wgAjaxExportList[] = 'wfMsUploadRender';
 function wfMsUploadRender() {
-
+  
+  #global $wgOut,$wgUser,$wgUserName,$wgScriptPath;
   global $output,$wgUser;
   global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat;
 
@@ -19,16 +20,20 @@ function wfMsUploadRender() {
     		 return 2;
     } else { 
     
-      return $wgUser->getName()."|".$wgMSU_ShowAutoKat."|".$wgMSU_AutoIndex."|".$wgMSU_CheckedAutoKat; 
-    }   
-  return 3; 
+      $output .= "<form action='' method='post' id='upload-form'>";
+      $output .= "<ul id='upload_list'></ul>";
+      $output .= "<hr noshade>";
+      $output .= "</form><a href='#' id='upload_all'></a>";
+      
+    }  
+   
+  #return $output."|".$wgUser->getName();
+  return $output."|".$wgUser->getName()."|".$wgMSU_ShowAutoKat."|".$wgMSU_AutoIndex."|".$wgMSU_CheckedAutoKat;
 }
 
 $wgAjaxExportList[] = 'wfMsUploadCheck';
-function wfMsUploadCheck($filename){
+function wfMsUploadCheck($extension){
   global $wgFileExtensions,$wgMSU_PictureExt;
-  
-  $extension = strtolower(substr(strrchr ($filename, "."), 1));
   
   if (!in_array($extension, $wgFileExtensions)){
       return implode(',', $wgFileExtensions);  
