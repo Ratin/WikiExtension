@@ -1,14 +1,14 @@
-//window.addEvent('domready', function() {
-$(document).ready(function () {
-     $('#msc_added .msc_checkbox').each(function(el){
+window.addEvent('domready', function() {
+
+     $$('#msc_added .msc_checkbox').each(function(el){
      
-          sortkey = this.value.split('|');
+          sortkey = el.value.split('|');
           if(sortkey[1]){
           sortkey_text = sortkey[1];
           } else {
           sortkey_text = wgTitle;
           }
-          add_sortkey(this,sortkey[0],sortkey_text);
+          add_sortkey(el,sortkey[0],sortkey_text);
      
      });
      
@@ -16,23 +16,23 @@ $(document).ready(function () {
 
 function add_sortkey(el,title,sort){
 
-    var sortkey = $(document.createElement("span")).attr({
-        "class":"msc_sortkey",
-        text:title,
-        title:sort
-    }).html(title+'<img src="./extensions/MsCatSelect/sortkey.png">').click(function(e) { //click
-        			
-        	userInput = prompt(unescape('Hier bitte den Sortierschl%FCssel eingeben. Der Sortierschl%FCssel ist f%FCr die Sortierung in der Kategorie%FCbersicht relevant.'),sort);
-            if (userInput != '' && userInput != null && userInput!= sort) {
-             el.value = title+'|'+userInput; 
-             //alert('Der Sortierschl%FCssel wurde gespeichert');
-             sortkey.title = userInput;
-             sort = userInput;
-            }
-        			
-    }).insertAfter(el);
+      sortkey = new Element('span', {'class':'msc_sortkey',text:title,title:sort}).inject(el, 'after');
+      sortkey.innerHTML = title+'<img src="./extensions/MsCatSelect/sortkey.png">';
+      
+      sortkey.addEvent('click', function() {
+          
+          userInput = prompt(unescape('Hier bitte den Sortierschl%FCssel eingeben. Der Sortierschl%FCssel ist f%FCr die Sortierung in der Kategorie%FCbersicht relevant.'),sort);
+          
+          if (userInput != '' && userInput != null && userInput!= sort) {
 
-    return sortkey;  
+           el.value = title+'|'+userInput; 
+           //alert('Der Sortierschl%FCssel wurde gespeichert');
+           sortkey.title = userInput;
+           sort = userInput;
+          }
+
+        }.bind(this));
+     return sortkey;  
 }
 
 
@@ -66,7 +66,9 @@ catg_kat = '';
         alert('Kategorie erfolgreich angelegt');
         addKat(new_name);
         }
+  
   	});
+
 }
 
 function addKat(new_kat) {
@@ -89,18 +91,11 @@ function addKat(new_kat) {
   if (new_kat!=1) {
 
         var msc_added = document.getElementById("msc_added"); 
-        
-        var checkbox = $(document.createElement("input")).attr({
-          'class':'msc_checkbox',
-          type:'checkbox',
-          name:'SelectCategoryList[]',
-          value:new_kat,
-          'checked': true
-        }).insertAfter(msc_added);
-        
+        checkbox = new Element('input', {'class':'msc_checkbox',type:'checkbox',name:'SelectCategoryList[]',value:new_kat,'checked': true}).inject(msc_added, 'after');
         sortkey = add_sortkey(checkbox,new_kat,wgTitle);
-        $(document.createElement("span")).html('<br>').insertAfter(sortkey);
-
+        br = new Element('span').inject(sortkey, 'after');
+        br.innerHTML = '<br>'; 
+       
   } //newcat !=1        
 }
 
