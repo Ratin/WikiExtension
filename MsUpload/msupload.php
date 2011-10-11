@@ -9,7 +9,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsUpload',
 	'url'  => 'http://www.ratin.de/wiki.html',
 	'description' => 'Diese Extension macht Uploads/Multiuploads direkt im Editor möglich',
-	'version' => '8.0',
+	'version' => '8.1',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin',
 );
 
@@ -25,12 +25,10 @@ function MSLSetup() {
   global $wgVersion;
   
   $version = explode(".", $wgVersion); #$version[0] = 1; $version[1] = 17; $version[2] = 0;
-	$path =  $wgScriptPath.'/extensions/MsUpload';
+  $path =  $wgScriptPath.'/extensions/MsUpload';
   
-
-  if(isset($wgTitle) AND $wgTitle->getArticleID()!=0){
-    
-    
+  #if(isset($wgTitle) AND $wgTitle->getArticleID()!=0){
+  #if($wgIsArticle)  
     
    if($version[1] < '17'){  #framework bei versionen < 17 laden
    
@@ -43,14 +41,20 @@ function MSLSetup() {
     } //if
     
     $wgOut->addScriptFile($path.'/js/plupload.full.js' );
-  	$wgOut->addScriptFile( $path.'/msupload.js' );
+  	$wgOut->addScriptFile( $path.'/js/msupload.js' );
     $wgOut->addScriptFile( $path.'/js/msupload_insert.js' );
     	
     $wgOut->addLink( array(
     			'rel' => 'stylesheet',
     			'type' => 'text/css',
-    			'href' => $path.'/msupload.css'
+    			'href' => $path.'/css/msupload.css'
     ));
-  }
+	$wgOut->addLink( array(
+    			'rel' => 'stylesheet',
+    			'type' => 'text/css',
+    			'href' => $path.'/css/jquery.css'
+    ));
+  #}
+  
   return true;
 }

@@ -32,40 +32,40 @@
 
 #upload_list .file{
 	line-height: 2em;
-	background: url(./images/bg_grey.png) repeat-x 5px 50%;
+	background: url(../images/bg_grey.png) repeat-x 5px 50%;
 	padding: 1px 0px 1px 10px;
 	border: 1px solid #eee;
 	border-bottom: 1px solid #ddd;
 }
 
 #upload_list .yellow{
-	background: url(./images/bg_yellow.png) repeat-x 5px 50%;
+	background: url(../images/bg_yellow.png) repeat-x 5px 50%;
 }
 
 #upload_list .red{
-	background: url(./images/bg_red.png) repeat-x 5px 50%;
+	background: url(../images/bg_red.png) repeat-x 5px 50%;
 }
 
 #upload_list .green{
-	background: url(./images/bg_green.png) repeat-x 5px 50%;
+	background: url(../images/bg_green.png) repeat-x 5px 50%;
 }
 
 #upload_list .file .file-type{
   padding:0px 10px;
-	background: url(./images/document-globe.png) no-repeat 0 0;
+	background: url(../images/document-globe.png) no-repeat 0 0;
 }
 
 
 #upload_list .file .picture {
-  background: url(./images/document-image.png) no-repeat 0 0;
+  background: url(../images/document-image.png) no-repeat 0 0;
 }
 
 #upload_list .file .document {
-  background: url(./images/document.png) no-repeat 0 0;
+  background: url(../images/document.png) no-repeat 0 0;
 }
 
 #upload_list .file .ok {
-  background: url(./images/tick.png) no-repeat 0 0;
+  background: url(../images/tick.png) no-repeat 0 0;
 }
 
 #upload_list .file .file-title {
@@ -117,7 +117,7 @@
 }
 
 #upload_list .file .file-cancel {
-	background: url(./images/cross-circle.png) no-repeat 0 0;
+	background: url(../images/cross-circle.png) no-repeat 0 0;
 	margin-left:5px;
 	margin-right:5px;
 	padding:0px 10px;
@@ -166,7 +166,7 @@ a.hover {
   	border: 1px solid #eee;
 	padding: 2px 0px 2px 48px;
 	line-height: 2em;
-	background: url(./images/error.png) no-repeat 24px 5px;
+	background: url(../images/error.png) no-repeat 24px 5px;
 }
 
 #upload_list .file-invalid span {

@@ -140,8 +140,7 @@ $(document).ready(function () {
     	});
     
     	uploader.bind('FileUploaded', function(up, file) {
-    		//$('#' + file.id + " b").html("100%");
-    		
+
     		file.li.title.unbind('click');
 			file.li.title.unbind('mouseover');
 			file.li.type.addClass('ok');
@@ -150,7 +149,7 @@ $(document).ready(function () {
             //file.li.progress.fadeOut("slow");
             $('#' + file.id + " div.file-progress").fadeOut("slow");
             $('#' + file.id + " div.file-progress-bar").fadeOut("slow");
-            $('#' + file.id + " div.file-progress-state").fadeOut("slow");
+            $('#' + file.id + " span.file-progress-state").fadeOut("slow");
             	
     		if(file.kat == true){ //soll die Kategorie gesetzt werden
 		        
