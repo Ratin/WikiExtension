@@ -68,9 +68,9 @@ function wfMsLinksRender(&$parser, $typ = '', $url = '', $beschreibung = '', $al
 
 	
 	if ($align == "right") { 
-    $html = $html." ".$bild." x".$version;
+    $html = $html." ".$bild." ";
   } else { #standardausrichtung
-    $html = $bild." ".$html." x".$version;
+    $html = $bild." ".$html." ";
   }
 
   
