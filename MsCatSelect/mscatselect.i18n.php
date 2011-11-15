@@ -23,6 +23,19 @@ $messages['de'] = array(
         'selectcategory-go' => 'erstellen',       
 );
 
+/** Czech (Česky) 1.0
+ * @author Neřeknu   <narodni.hrdost@Safe-mail.net>
+ */
+$messages['cs'] = array(
+       'selectcategory-title' => 'Hlavní kategorie',
+       'selectcategory-untercat' => 'Nová podkategorie',
+       'selectcategory-untercat-hinw' => 'bude vytvořena ve výše uvedené kategorii',
+       'selectcategory-warnnocat' => 'UPOZORNĚNÍ: Tato stránka není zařazena do žádné kategorie. Prosím zvolte nějakou kategorii!',
+       'selectcategory-cats' => 'Již přiřazené kategorie',
+       'selectcategory-add' => 'přidat',
+       'selectcategory-go' => 'vytvořit',
+);
+
 /** English
  */
 

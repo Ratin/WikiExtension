@@ -22,6 +22,8 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
     global $wgOut, $wgScriptPath,$wgWarnNoCat;
     global $wgTitle, $wgRequest;
     
+	$path =  $wgScriptPath.'/extensions/MsCatSelect';
+	
     $wgOut->addHtml('<style>
     .mscs{
     	width: 98%;
@@ -29,21 +31,33 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
       background: #ddd;
       margin: 5px 0px;
     }
+	
     #WarnNoCat{
       padding: .5em 0em;
       color: red;
       font-size:1.35em;
     }
-    
+
+    .msc_entry .img_sortkey{
+		background: url('.$path.'/sortkey.png) no-repeat 0px 0px;
+		height: 5px;
+		width:10px;
+		padding: 0px 6px 0px 6px;
+		position:relative; 
+		left:4px;
+		cursor: pointer;
+		cursor: hand;
+    }
     </style>'); 
   
 	
     # Get all categories from wiki:
-    $m_allCats = fnSelectCategoryGetAllCategories(true);
+    #$m_allCats = fnSelectCategoryGetAllCategories(true);
    
     global $wgMainCategories,$m_allCats_os;
-    if($wgMainCategories){
     
+    if($wgMainCategories){
+
       foreach ($wgMainCategories as $key => $value) {
       $m_allCats_os[$value]=0;
       }
@@ -63,12 +77,14 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
       #$m_pageCats = fnSelectCategoryGetPageCategories( $m_pageObj );
       #fnCleanTextbox($m_pageObj);
       
-      if(	$wgRequest->getVal("preload") != "") {
+     # if($wgRequest->getVal("preload") != "") {
         # neue seiten die mit preload angelegt werden
-        $m_pageCats = fnGetPageCategories($wgRequest->getVal("preload"));
-      } else {
+      #  echo "1";
+      #  $m_pageCats = fnGetPageCategories($wgRequest->getVal("preload"));
+      #} else {
         $m_pageCats = fnGetPageCategories();
-      }
+	#	echo "2";
+      #}
       
       # Never ever use editFormTextTop here as it resides outside the <form> so we will never get contents
       $m_place = 'editFormTextAfterWarn';
@@ -90,7 +106,8 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
 
          $m_ober_cat="";
          $unter_cat = array();
-    while (list($key,$value) = each($m_allCats_os)) {
+		 
+    	while (list($key,$value) = each($m_allCats_os)) {
 
          $m_ober_cat .= $key." ";
          $m_unter_cat = fnSelectCategoryGetChildren($key);
@@ -101,20 +118,17 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
                  }
 
             array_push($unter_cat,$m_string);
-         }
-
-    
+         } //while
     
     $m_pageObj->$m_place .= "<select id='dd_1' name='auswahl' onchange=\"getUnterkat(this.value,1)\"><option value=''>----</option>";
 
-     $i=0;
+    $i=0;
      
-    
     foreach( $m_allCats_os as $m_cat => $m_depth){
     
-    $category =  htmlspecialchars( $m_cat );
-    $m_pageObj->$m_place .= "<option name='$category' value='$category'>$category</option>";
-    $i++;
+	    $category =  htmlspecialchars( $m_cat );
+	    $m_pageObj->$m_place .= "<option name='$category' value='$category'>$category</option>";
+	    $i++;
     }
 
     $m_pageObj->$m_place .= "</select><span id='sdd'></span>";
@@ -124,9 +138,7 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
     $m_pageObj->$m_place .= " (". wfMsg( 'selectcategory-untercat-hinw' ) .")<br>";
     
     
-    #all added categories
-    
-    fnCleanTextbox($m_pageObj);
+    fnCleanTextbox($m_pageObj); #clean the textbox
     
     if(count($m_pageCats) == 0 AND $wgWarnNoCat) { # warn no Category
     
@@ -136,14 +148,20 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
     
       $m_pageObj->$m_place .= "<b>". wfMsg( 'selectcategory-cats' ) .":</b><br><div id='msc_added'>";
     
-      foreach($m_pageCats as $m_cat =>$m_depth ){
+      foreach($m_pageCats as $m_cat => $sortkey ){
     
          $category =  htmlspecialchars( $m_cat );
-         
-         if ($m_depth != 1){
-         $category = $category."|".$m_depth; 
-         }
-         $m_pageObj->$m_place .= "<input class='msc_checkbox' type='checkbox' name='SelectCategoryList[]' value='".$category."' class='checkbox' checked='checked' /><br>"; 
+         $category_sortkey = $category;
+		 
+		 #starting with mw 1.17 sortkeys are case insensitive
+         if ($sortkey != 1 AND $sortkey != ""){
+			$category_sortkey .= "|".$sortkey; 
+         } 
+		 
+		 $m_pageObj->$m_place .= "<div class='msc_entry' sortkey='".$sortkey."' category='".$category."'>";
+         $m_pageObj->$m_place .= "<input class='msc_checkbox' type='checkbox' name='SelectCategoryList[]' value='".$category_sortkey."' checked='checked' />";
+         $m_pageObj->$m_place .= $category;
+		 $m_pageObj->$m_place .= "</div>"; 
       }//foreach
     
     }
@@ -154,7 +172,8 @@ function fnSelectCategoryShowHook( $m_isUpload = false, $m_pageObj ) {
   # Return true to let the rest work:
   return true;
 }
-    ## Entry point for the hook and main worker function for saving the page:
+
+## Entry point for the hook and main worker function for saving the page:
 function fnSelectCategorySaveHook( $m_isUpload, $m_pageObj ) {
   global $wgContLang;
   global $wgTitle;
@@ -174,7 +193,7 @@ function fnSelectCategorySaveHook( $m_isUpload, $m_pageObj ) {
     # Iterate through all selected category entries:
     if (array_key_exists('SelectCategoryList', $_POST)) {
       foreach( $_POST['SelectCategoryList'] as $m_cat ) {
-        $m_text .= "\n[[$m_catString:$m_cat$default_sortkey]]";
+        $m_text .= "\n[[".$m_catString.":".$m_cat."]]";
       }
     }
     # If it is an upload we have to call a different method:
@@ -208,8 +227,8 @@ function fnSelectCategoryGetAllCategories($m_sub_cats) {
   } else {
     # Initialize return value:
     $m_allCats = array();
-    # Get a database object:
-    $m_dbObj =& wfGetDB( DB_SLAVE );
+    
+    $m_dbObj =& wfGetDB( DB_SLAVE ); # Get a database object
     # Get table names to access them in SQL query:
     $m_tblCatLink = $m_dbObj->tableName( 'categorylinks' );
     $m_tblPage = $m_dbObj->tableName( 'page' );
@@ -254,8 +273,7 @@ function fnCategoryGetChildren($kat){
   } else {
   $unterkat = "0";
   }
-  
-  
+
   return $unterkat;
 
 }
@@ -297,8 +315,7 @@ function fnSelectCategoryGetChildren( $m_root, $m_depth = 1 ) {
 
 }
 
-## Returns an array with the categories the articles is in.
-## Also removes them from the text the user views in the editbox.
+##removes the old category tag from the text the user views in the editbox.
 function fnCleanTextbox( $m_pageObj ) {
 
   global $wgContLang;
@@ -328,10 +345,10 @@ function fnGetPageCategories($title = "") {
   global $wgTitle,$wgArticleId;
 
     $m_catLinks = array();
-    # Get a database object:
-    $m_dbObj =& wfGetDB( DB_SLAVE );
-    # Get table names to access them in SQL query:
-    $m_tblCatLink = $m_dbObj->tableName( 'categorylinks' );
+    
+    
+    $m_dbObj =& wfGetDB( DB_SLAVE ); # Get a database object
+    $m_tblCatLink = $m_dbObj->tableName( 'categorylinks' ); #Get the TableName
     
     if($title != ""){
     
@@ -340,17 +357,17 @@ function fnGetPageCategories($title = "") {
     
     } else {
     
-      $m_sql = "SELECT cl_to AS title, cl_sortkey FROM $m_tblCatLink  WHERE cl_from = '".$wgTitle->getArticleID()."'"; 
+      $m_sql = "SELECT cl_to AS title, cl_sortkey,cl_sortkey_prefix FROM $m_tblCatLink  WHERE cl_from = '".$wgTitle->getArticleID()."'"; 
       
     }
 
-    
     $m_res = $m_dbObj->query( $m_sql, __METHOD__ );
     # Process the resulting rows:
     while ( $m_row = $m_dbObj->fetchRow( $m_res ) ) {
 
       $cat=strtr($m_row['title'], '_', ' '); //database
-      $m_catLinks[$cat] = $m_row['cl_sortkey'];
+      $m_catLinks[$cat] = $m_row['cl_sortkey_prefix']; #starting with mw 1.17 sortkeys are case insensitive
+		
     }
     # Free result:
     $m_dbObj->freeResult( $m_res );

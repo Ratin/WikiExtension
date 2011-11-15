@@ -12,7 +12,7 @@ if( !defined( 'MEDIAWIKI' ) ) {
 $wgExtensionCredits['parserhook'][] = array(
         'name'           => 'MsCatSelect',
         'url'  => 'http://www.mediawiki.org/wiki/Extension:MsCatSelect',
-        'version'        => '4.4',
+        'version'        => '4.5',
         'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin',
         'description' => 'Mit dieser Extension kann eine Seite einer bestehenden oder neuen Kategorie per DropDown zugewiesen werden oder auch neue Unterkategorien erstellt werden.',
         'descriptionmsg' => 'selectcategory-desc',
@@ -25,7 +25,7 @@ $dir = dirname(__FILE__) . '/';
 $wgExtensionMessagesFiles['mscatselect'] = $dir . 'mscatselect.i18n.php';
 
 ## Set Hook:
-global $wgHooks, $wgScriptPath;
+global $wgHooks;
 
 $wgHooks['EditPage::showEditForm:initial'][] = 'MsCatSelectSetup';
 
@@ -38,16 +38,17 @@ function MsCatSelectSetup() {
     
   if(isset($wgTitle) AND $wgTitle->getArticleID()!=0){
 
-   if($version[1] < '17'){  #framework bei versionen < 17 laden
+   if($version[1] < '17'){  #load framework at versions below 1.17 
    
       if (!$wgFrameworkLoaded){
-        $wgOut->addScriptFile($path.'/jquery.min.js' );  #ist noch nicht beigefuegt
+        $wgOut->addScriptFile($path.'/js/jquery.min.js' ); 
         $wgFrameworkLoaded = true;  
       } //if no framework
       
     } //if  version
   } //if title  
-  $wgOut->addScriptFile( $path.'/mscatselect.js' );
+
+  $wgOut->addScriptFile( $path.'/js/mscatselect.js' );
 
   return true;
 }
