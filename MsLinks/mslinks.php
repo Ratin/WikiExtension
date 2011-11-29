@@ -15,7 +15,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsLinks',
 	'url'  => 'http://www.ratin.de/wiki.html',
 	'description' => 'Erzeugt einem Link mit dem passenden Icon sowie einen Direkt- und Versionslink',
-	'version' => '2.4',
+	'version' => '2.5',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin'
 );
  
@@ -26,16 +26,23 @@ $wgExtensionFunctions[] = "wfMsLinksSetup";
 	$wgHooks['LanguageGetMagic'][] = 'wfMsLinksMagic';
 
 
+function MsLinksRegisterHook( &$parser ) {
+        $parser->setHook( 'mslink', 'wfMsLinksRender' );
+        return true;
+}
+
+/*
 function wfMsLinksSetup() {
 	global $wgParser;
 	
 	$wgParser->setFunctionHook('mslink', 'wfMsLinksRender');
 }
- 
+ */
  
 function wfMsLinksMagic( &$magicWords, $langCode ) {
 
 	$magicWords['mslink'] = array(0, 'mslink','l');
+	
 	return true;
 }
 
