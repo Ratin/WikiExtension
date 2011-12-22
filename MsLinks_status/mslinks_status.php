@@ -16,12 +16,12 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsLinks_status',
 	'url'  => 'http://www.ratin.de/wiki.html',
 	'description' => 'Erzeugt einem Link mit dem passenden Icon sowie eine eine Statusampel zum klicken.',
-	'version' => '1.0',
+	'version' => '1.1',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin'
 );
  
 
-require_once('mslinks_body.php');
+require_once('mslinks_status_body.php');
 
 $wgExtensionFunctions[] = "wfMsLinksSetup";
 	$wgHooks['BeforePageDisplay'][]='htAddHTMLHeader';
