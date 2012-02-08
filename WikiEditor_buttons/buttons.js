@@ -19,6 +19,7 @@ if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
  
  			addButton('Strike','<strike>','Text','</strike>',''+path_buttons+'/images/Button_strike.png');
 		}
+		
 		if(jQuery.inArray("achtung", add_buttons) > -1) {
  
  			addButton('Achtung','{{Achtung|','Text','}}',''+path_buttons+'/images/Achtung-Link.gif');
@@ -44,30 +45,32 @@ if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
 
 		}
 
+		function addButton(nam,prex,perix,postx,img){
+			
+			// To add a button to an existing toolbar group:
+		    $('#wpTextbox1' ).wikiEditor( 'addToToolbar', {
+		                        'section': 'main',
+		                        'group': 'lacon',
+		                        'tools': {
+		                                nam: {
+		                                        label: nam, // or use labelMsg for a localized label, see above
+		                                        type: 'button',
+		                                        icon: img,
+		                                        action: {
+		                                                type: 'encapsulate',
+		                                                options: {
+		                                                        pre: prex, 
+		                                                        peri: perix,
+		                                                        post: postx,
+		                                                }
+		                                        }
+		                                }
+		                        }
+		     } );
+		}
+
 	});
 
 }
 
-function addButton(nam,prex,perix,postx,img){
-	
-	// To add a button to an existing toolbar group:
-    $( '#wpTextbox1' ).wikiEditor( 'addToToolbar', {
-                        'section': 'main',
-                        'group': 'lacon',
-                        'tools': {
-                                nam: {
-                                        label: nam, // or use labelMsg for a localized label, see above
-                                        type: 'button',
-                                        icon: img,
-                                        action: {
-                                                type: 'encapsulate',
-                                                options: {
-                                                        pre: prex, 
-                                                        peri: perix,
-                                                        post: postx,
-                                                }
-                                        }
-                                }
-                        }
-     } );
-}
+

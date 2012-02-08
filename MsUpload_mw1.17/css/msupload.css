@@ -84,32 +84,16 @@
 	color: #666;
 }
 
+
 #upload_list .file .file-progress{
   width:150px;
   height:10px;
   display: inline;
 }
 
-.ui-progressbar-value.ui-widget-header{
-	background: url(../images/progress_stripe.png) repeat-x 0 0;	
-}
-
-.ui-progressbar-value.ui-widget-content{
-	background:none;
-}
-
-.ui-progressbar-value{	
-
- border-radius: 10px;
- -moz-border-radius:10px;
- -webkit-border-radius:10px;
- -khtml-border-radius:10px;
- border: 1px solid #ccc;
-}
-
 #upload_list .file .file-progress-bar{
  
- background:none;
+
  display: inline;
  width:150px;
  height:10px;
@@ -120,12 +104,6 @@
  position:absolute;
  margin-top:8px;
 
- border-radius: 10px;
- -moz-border-radius:10px;
- -webkit-border-radius:10px;
- -khtml-border-radius:10px;
-
- border: 1px solid #ccc;
  
 }
 
