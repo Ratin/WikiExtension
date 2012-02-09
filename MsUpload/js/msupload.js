@@ -16,15 +16,17 @@ $(document).ready(function () {
 	        
 	        $('#wikiEditor-ui-toolbar').find('.sections').css('height','100%');;
 
+			$('#editform').find('.tab-msupload a').hide();
+			
 	        //upload button anlegen 
       		var upload_section = $('#editform').find('.section-msupload');
       	    var upload_button = $(document.createElement("span")).attr({ 
 	        id: "upload_select",
 	        title: "Datei(en) hochladen"
-	        }).append('MsUpload <img src="'+path_msu+'/images/button_upload.gif">').click(function(e) { //click
+	        }).append('<img src="'+path_msu+'/images/button_upload.gif">').click(function(e) { //click
 	        	
 	        	upload_section.css('display','block');
-	        	$('#editform').find('.tab-msupload a').unbind('click').addClass("current");
+	        	$('#editform').find('.tab-msupload a').unbind('click').addClass("current").hide();
 	        	$('#editform').find('.sections').css('display','block');
 	        	
 	        }).appendTo($('#editform').find('.tab-msupload')); 
@@ -195,29 +197,27 @@ $(document).ready(function () {
         	}).appendTo(file.li);
     		
 
-
             if (file.extension == "pic"){
         		  
         		gallery_arr.push(file.name);	
-        		 if(gallery_arr.length>=2){
+
         		  		
-        		  		gallery_insert.html('Bilder als Gallery einfügen').show().click(function(e) { //click
-  			
-							gallery_text = "Image:";
-							gallery_text += gallery_arr.join("\nImage:");
-							gallery_text +='\n';
-							
-							msu_vorlage_insert(gallery_text,'<gallery>\n\n','\n</gallery>\n'); 
-							
-        				});
-        		  		
-        		  } else {
+        		  if(gallery_arr.length== 2){ //only at first time add click function
+	        		  		gallery_insert.click(function(e) { //click
+	  			
+								gallery_text = "Image:";
+								gallery_text += gallery_arr.join("\nImage:");
+								gallery_text +='\n';
+										
+								alert(gallery_text);
+								msu_vorlage_insert(gallery_text,'<gallery>\n\n','\n</gallery>\n'); 
+								
+	        				}).html('Bilder als Gallery einfügen').show();
+        		  } else if(gallery_arr.length< 2) {
         		  		
         		  	gallery_insert.html('');
         		  }
 
-            		  
-        		
         		$(document.createElement("span")).text(' | ').appendTo(file.li);
         		$(document.createElement("a")).text(unescape('als Bild einf\u00Fcgen')).click(function(e) { //click
         			
