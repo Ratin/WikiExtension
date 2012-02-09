@@ -1,61 +1,3 @@
-// Check that the toolbar is available
-if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
-	// Execute on load
-	$( function() {	
-	        	
-        	
-		// To add a group to an existing toolbar section:
-        $( '#wpTextbox1' ).wikiEditor( 'addToToolbar', {
-                        'section': 'main',
-                        'groups': {
-                                'msinsert': {
-                                        'label': '&nbsp;' 
-                                }
-                        }
-        } );
-
-
-       var msinsert_group = $('#editform').find('.group-msinsert').show();
-       
-       var dropdown_list = $(document.createElement("select")).attr("id","msinsert_list").change(function(){
-       	
-       		var sel = this.options[this.selectedIndex].value;
-       		vorlage_sel(sel);
-       		//alert(sel);
-       	
-       }).append('<option value=\'0\'>Vorlage auswählen</option>').appendTo(msinsert_group.find('.label'));
-       
-       for (var i = 0; i < vorlagen.length; ++i){
-			dropdown_list.append('<option value='+(i+1)+'>'+vorlagen[i]+'</option>');           
-          }
-
-
-
-	});
-
-} else {
-	
-	// Select erstellen       
-     var objSel = document.createElement("select");
-     objSel.onchange= function(){
-        
-        var sel = this.options[this.selectedIndex].value;
-        vorlage_sel(sel);
-        
-        };
-          
-           objSel.options[objSel.options.length] = new Option('Vorlage auswählen', 0);
-           
-          for (var i = 0; i < vorlagen.length; ++i){
-          
-            objSel.options[objSel.options.length] = new Option(vorlagen[i], i+1);
-            
-          }
-          
-      
-    document.getElementById('toolbar').appendChild(objSel);
-}
-
 function vorlage_sel(i){
 
   if(i!=0){
@@ -161,5 +103,29 @@ function vorlage_insert(inhalt,tagOpen,tagClose) {
         
 }
 
+function create_btn_insert() {
+    
+    	// Select erstellen       
+     var objSel = document.createElement("select");
+     objSel.onchange= function(){
+        
+        var sel = this.options[this.selectedIndex].value;
+        vorlage_sel(sel);
+        
+        };
+          
+           objSel.options[objSel.options.length] = new Option('Vorlage auswählen', 0);
+           
+          for (var i = 0; i < vorlagen.length; ++i){
+          
+            objSel.options[objSel.options.length] = new Option(vorlagen[i], i+1);
+            
+          }
+          
+      
+    document.getElementById('toolbar').appendChild(objSel);
+    
+	
+}
 
 

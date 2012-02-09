@@ -8,7 +8,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsInsert',
   'url'  => 'http://www.ratin.de/wiki.html',
 	'description' => 'Per Dropdown koennen bestimmte Seiten als Vorlage in den Editor geladen werden.',
-	'version' => '2.1',
+	'version' => '2.0',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin',
 );
 
@@ -37,11 +37,8 @@ function MSISetup() {
 
   $vorlagen = 'var vorlagen = new Array("' . implode ( '", "', $vorlagen ) . '");';
   $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">$vorlagen</script>\n" );
-  
-  $wgOut->addScriptFile($path.'/msinsert.js' );
-  
-  //$wgOut->addScript( "<script type=\"{$wgJsMimeType}\" src=\"$path/msinsert.js\"></script>\n");
-  //$wgOut->addScript( "<script type=\"{$wgJsMimeType}\">hookEvent(\"load\",create_btn_insert);</script>\n" );
+  $wgOut->addScript( "<script type=\"{$wgJsMimeType}\" src=\"$path/msinsert.js\"></script>\n");
+	$wgOut->addScript( "<script type=\"{$wgJsMimeType}\">hookEvent(\"load\",create_btn_insert);</script>\n" );
   
     return true;
 }
