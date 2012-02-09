@@ -17,22 +17,21 @@ $wgHooks['EditPage::showEditForm:initial'][] = 'WEBSetup';
 
 function WEBSetup() {
 
-  global $wgOut, $wgScriptPath, $wgJsMimeType,$wgButtonsAdd;
+  global $wgOut, $wgScriptPath, $wgJsMimeType,$wgButtonsAdd,$wgButtonsRemove;
   $path =  $wgScriptPath.'/extensions/Wikieditor_buttons';
   
-  //$buttons = 'var add_buttons = new Array("' . implode ( '", "', $vorlagen ) . '");';
-  $buttons = implode ( '","', $wgButtonsAdd );
+  $buttons_add = implode ( '","', $wgButtonsAdd );
+  $buttons_remove = implode ( '","', $wgButtonsRemove );
   
   $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">
   	var path_buttons='$path'; 
-  	var add_buttons = new Array(\"$buttons\");
+  	var add_buttons = new Array(\"$buttons_add\");
+  	var remove_buttons = new Array(\"$buttons_remove\");
   	
   </script>\n" );
 		
   $wgOut->addScriptFile($path.'/buttons.js' );
-  
 
-  
   return true;
 }
 

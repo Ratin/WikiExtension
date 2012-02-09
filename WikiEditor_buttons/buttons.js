@@ -2,9 +2,23 @@
 if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
 	// Execute on load
 	$( function() {	
-	        	
-
+	    
+	    
+	    
+	    jQuery.each(remove_buttons, function(i, val) {
+	    	
+	    	if(val == "reference") {
+	    		$( '#wpTextbox1' ).wikiEditor( 'removeFromToolbar', {
+            	'section': 'main',
+            	'group': 'insert',
+            	'tool': 'reference'
+        		});
+	    	}else {
+	    		removeSection(val);
+	    	}
 			
+		});
+        	
 		// To add a group to an existing toolbar section:
         $( '#wpTextbox1' ).wikiEditor( 'addToToolbar', {
                         'section': 'main',
@@ -17,7 +31,7 @@ if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
 
 		if(jQuery.inArray("strike", add_buttons) > -1) {
  
- 			addButton('Strike','<strike>','Text','</strike>',''+path_buttons+'/images/Button_strike.png');
+ 			addButton('Durchstreichen','<strike>','Text','</strike>',''+path_buttons+'/images/Button_strike.png');
 		}
 		
 		if(jQuery.inArray("achtung", add_buttons) > -1) {
@@ -36,7 +50,7 @@ if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
 		}
 		if(jQuery.inArray("gallery", add_buttons) > -1) {
  
- 			addButton('Gallery','<gallery>\n','File:Example.jpg|Caption1\nFile:Example.jpg|Caption2\n','</gallery>',''+path_buttons+'/images/Btn_toolbar_gallery.png');
+ 			addButton('Bildergallerie','<gallery>\n','File:Example.jpg|Caption1\nFile:Example.jpg|Caption2\n','</gallery>',''+path_buttons+'/images/Btn_toolbar_gallery.png');
  
 		}
 		if(jQuery.inArray("email", add_buttons) > -1) {
@@ -44,7 +58,22 @@ if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
  			addButton('E-Mail','{{email|','E-MailAdresse@domain.com','}}',''+path_buttons+'/images/E-Mail.png');
 
 		}
-
+		if(jQuery.inArray("date", add_buttons) > -1) {
+ 			// start aktuelles Datum
+			var date=new Date();
+			day = date.getDate();
+			month = (date.getMonth()+1);
+			year = date.getFullYear();
+			if(day<10) day = "0" + day;
+			if(month<10) month= "0" + month; 
+ 			addButton('aktuelles Datum','',"*"+year+"."+month+"."+day+": ",'',''+path_buttons+'/images/Kalender.gif');
+		}
+		
+		function removeSection(nam){
+			$( '#wpTextbox1' ).wikiEditor( 'removeFromToolbar', {
+            'section': nam
+        	});
+		}
 		function addButton(nam,prex,perix,postx,img){
 			
 			// To add a button to an existing toolbar group:
