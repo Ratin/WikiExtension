@@ -6,10 +6,10 @@ if(! defined('MEDIAWIKI')) {
 }
 
 $wgExtensionCredits['parserhook'][] = array(
-	'name' => 'MsUpload',
-	'url'  => 'http://www.ratin.de/msupload.html',
-	'description' => 'Diese Extension macht Uploads/Multiuploads direkt im Editor möglich',
-	'version' => '1.0',
+	'name' => 'WikiEditor Buttons Modifier',
+	'url'  => 'http://www.ratin.de',
+	'description' => 'You can modify the bottons for WikiEditor',
+	'version' => '1.1',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin',
 );
 
@@ -18,7 +18,7 @@ $wgHooks['EditPage::showEditForm:initial'][] = 'WEBSetup';
 function WEBSetup() {
 
   global $wgOut, $wgScriptPath, $wgJsMimeType,$wgButtonsAdd,$wgButtonsRemove;
-  $path =  $wgScriptPath.'/extensions/Wikieditor_buttons';
+  $path =  $wgScriptPath.'/extensions/WikiEditor_buttons';
   
   $buttons_add = implode ( '","', $wgButtonsAdd );
   $buttons_remove = implode ( '","', $wgButtonsRemove );
