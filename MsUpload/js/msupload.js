@@ -1,35 +1,55 @@
-var autoKat = false;
-var autoIndex = false;
-var autoChecked = false;
-
 //jQuery(document).ready(function() {
 $(document).ready(function () {
-//$(function() {
-  //damit später die progressbar zur verfügung steht 
-  //mw.loader.using('jquery.ui.progressbar');
-  
-  
-  sajax_do_call( 'wfMsUploadRender', [], 
-  function (result) {
+	// Check that the toolbar is available
+	if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
+	        // Execute on load
+	        //$( function() {	
+	        	// To add a toolbar section:
+                $( '#wpTextbox1' ).wikiEditor( 'addToToolbar', {
+                        'sections': {
+                                'msupload': {
+                                        'type': 'toolbar', // Can also be 'booklet'
+                                        'label': '',
+                                }
+                        }
+                } );
+	        
+	        $('#wikiEditor-ui-toolbar').find('.sections').css('height','100%');;
 
+	        //upload button anlegen 
+      		var upload_section = $('#editform').find('.section-msupload');
+      	    var upload_button = $(document.createElement("span")).attr({ 
+	        id: "upload_select",
+	        title: "Datei(en) hochladen"
+	        }).append('MsUpload <img src="'+path_msu+'/images/button_upload.gif">').click(function(e) { //click
+	        	
+	        	upload_section.css('display','block');
+	        	$('#editform').find('.tab-msupload a').unbind('click').addClass("current");
+	        	$('#editform').find('.sections').css('display','block');
+	        	
+	        }).appendTo($('#editform').find('.tab-msupload')); 
+      
+      
+    		//upload div anlegen  
+    		var upload_container = upload_section.attr("id","upload_container");
+   			var upload_div = $(document.createElement("div")).attr("id","upload_div").appendTo(upload_container); 
     
-    info = result.responseText.split('|'); 
-    
-    //userName = info[0];
-    autoKat = info[1];
-    autoIndex = info[2];
-    autoChecked = info[3];
-    
-    //upload button anlegen
-    var upload_button = $(document.createElement("a")).attr({ 
+	        var container_msu = 'upload_container';
+	        //});
+	        
+	} else {
+		
+		
+	  var upload_button = $(document.createElement("a")).attr({ 
       id: "upload_select",
       title: "Dateien hochladen"
-    }).append('<img src="extensions/MsUpload/images/button_upload.gif">').appendTo("#toolbar"); 
-    
-    
-    //upload div anlegen  
-    var upload_div = $(document.createElement("div")).attr("id","upload_div").appendTo("#toolbar"); 
+      }).append('<img src="'+path_msu+'/images/button_upload.gif">').appendTo("#toolbar"); 
+	  
+	  var upload_div = $(document.createElement("div")).attr("id","upload_div").insertAfter("#toolbar"); 
+	  var container_msu = 'toolbar';
+	}//toolbar of new editor
 	
+
     var status_div = $(document.createElement("div")).attr("id","upload_status").html('No runtime found.').appendTo(upload_div); 
     var upload_list = $(document.createElement("ul")).attr("id","upload_list").appendTo(upload_div);
     var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(upload_div).hide();
@@ -38,22 +58,20 @@ $(document).ready(function () {
     var gallery_arr = new Array();
     
     if(mw.loader){
-      //damit später die progressbar zur verfügung steht 
-      mw.loader.load('jquery.ui.progressbar');
+      mw.loader.load('jquery.ui.progressbar');//damit später die progressbar zur verfügung steht 
     }
 
-     
        var uploader = new plupload.Uploader({
     		runtimes : 'html5,flash',
     		browse_button : 'upload_select',
-    		container : 'toolbar',
+    		container : container_msu,
     		max_file_size : '100mb',
     		drop_element: 'upload_drop',
     		unique_names: false,
     		
     		multipart_params: { "user": wgUserName, "kat": wgPageName} ,     
         
-    		url : 'extensions/MsUpload/msupload_api.php',
+    		url : 'extensions/MsUpload/msupload.api.php',
     		flash_swf_url : 'extensions/MsUpload/js/plupload.flash.swf',
     		//silverlight_xap_url : 'extensions/MsUpload_plupload/js/plupload.silverlight.xap',
     		// Specify what files to browse for
@@ -67,7 +85,8 @@ $(document).ready(function () {
     	});
     
     	uploader.bind('Init', function(up, params) {
-    		status_div.html("Status: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop)).hide();
+    		status_div.html("Status: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop));
+    		if(debugMode==false){status_div.hide();} //hide status if debug mode is disabled
     		
     		if(up.features.dragdrop){
 	        	
@@ -118,19 +137,22 @@ $(document).ready(function () {
         }
         
       });
-    
-    	uploader.bind('UploadProgress', function(up, file) {
+     uploader.bind('BeforeUpload', function(up, file) {
+    	
+    	$('#' + file.id + " div.file-progress-bar").progressbar({value: '1'});
+    	
+     });
+      
+     uploader.bind('UploadProgress', function(up, file) {
     	
     		$('#' + file.id + " span.file-progress-state").html(file.percent + "%");
-    	  	//file.li.progress_state.html(file.percent + "%");
-    	  
         	$('#' + file.id + " div.file-progress-bar").progressbar({value: file.percent});
-        	//file.li.progress_bar.progressbar({value: file.percent});
+      		$('#' + file.id + ' div.file-progress-bar .ui-progressbar-value').removeClass('ui-corner-left');
       });
-    
+   
     	uploader.bind('Error', function(up, err) {
     		//$('#upload_list')
-        $('#' + err.file.id + " span.file-warning").html("Error: " + err.code +
+        	$('#' + err.file.id + " span.file-warning").html("Error: " + err.code +
     			", Message: " + err.message +
     			(err.file ? ", File: " + err.file.name : "") 
     			
@@ -161,8 +183,14 @@ $(document).ready(function () {
 		     } //if
     		
     		$(document.createElement("a")).text(unescape('als Link einf\u00Fcgen')).click(function(e) { //click
-  			
-				msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link	
+  			   
+  			    if(use_mslinks==true){
+  			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link		
+  			    } else {
+  			    	msu_vorlage_insert('[[:Datei:'+file.name+']]','',''); // insert link
+  			    }
+  			    
+				
 				
         	}).appendTo(file.li);
     		
@@ -227,10 +255,6 @@ $(document).ready(function () {
                 
    uploader.init();
    
-             
-  
-  
-  })
   
 });//funktion
 
@@ -331,9 +355,10 @@ function build(file){
 
       //autokat
       if(autoKat){
-      	file.kat = autoChecked; //vordefinieren
-        if(wgNamespaceNumber==14){
+      	file.kat = false;
+        if(wgNamespaceNumber==14){ //category page
         	
+        	file.kat = autoChecked; //vordefinieren
         	$(document.createElement("input")).attr({
         		'class':'check_index',	
         		type: 'checkbox',
@@ -378,7 +403,4 @@ function build(file){
 
     file.li.append('<div class="file-progress"><div class="file-progress-bar"></div><span class="file-progress-state"></span></div>'); 
     
-
-	
-
 } 		  
