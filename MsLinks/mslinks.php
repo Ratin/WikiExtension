@@ -61,7 +61,7 @@ function wfMsLinksMagic( &$magicWords, $langCode ) {
 }
 
 function htAddHTMLHeader(&$wgOut){
-	global $wgScriptPath;
+	global $wgScriptPath,$wgJsMimeType;
 	$path =  $wgScriptPath.'/extensions/MsLinks';
 	$wgOut->addScriptFile( $path.'/mslinks.js' );
   	$wgOut->addScript( "<script type=\"{$wgJsMimeType}\">var path_button_msl='$path'; </script>\n" );
