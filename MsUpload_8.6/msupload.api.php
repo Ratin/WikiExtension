@@ -30,44 +30,29 @@ if (isset($_FILES['file']['name'])) {
 
   $filename = $_FILES['file']['name'];
 
-	if ($_POST['name'] != $filename) { //name was changed
+	if ($_POST['name'] != $filename) { //name wurde geändert
 		$filename = $_POST['name'];
-		//echo 'changed!';
+		echo 'change !!!';
 	}
 
 		$token = $wgUser->editToken();
         $wgEnableWriteAPI = true;    
-		
-		if($version[1] == '17'){  #only version 1.17
-	        $params = new FauxRequest(array (
-	        	'action' => 'upload',
-	        	'file' => $_FILES['file'],
-	        	'filename' => $filename,
-	        	'filesize' => $_FILES['file']['size'],
-	        	'comment'=> $comment,
-	        	'ignorewarnings'=> true, //sonst wird nix ueberschrieben
-	        	'token' => $token,//$token."%2B%5C",
-	        ));
-		}else{
-			$params = new FauxRequest(array (
-	        	'action' => 'upload',
-	        	'file' => $_FILES['file'],
-	        	'filename' => $filename,
-	        	'filesize' => $_FILES['file']['size'],
-	        	'comment'=> $comment,
-	        	'ignorewarnings'=> true, //sonst wird nix ueberschrieben
-	        	'token' => $token,//$token."%2B%5C",
-	        ), true, $_SESSION );	
-		}
+        $params = new FauxRequest(array (
+        	'action' => 'upload',
+        	'file' => $_FILES['file'],
+        	'filename' => $filename,
+        	'filesize' => $_FILES['file']['size'],
+        	'comment'=> $comment,
+        	'ignorewarnings'=> true, //sonst wird nix ueberschrieben
+        	'token' => $token,//$token."%2B%5C",
+        ), true, $_SESSION );
+
         $enableWrite = true; // This is set to false by default, in the ApiMain constructor
         $api = new ApiMain($params,$enableWrite);
         #$api = new ApiMain($params);
         $api->execute();
         $data = & $api->getResultData();
-  
-  //$ret = Array("filename" => $filename, "data" => $data );
-  echo json_encode($data); 
- 
+    
   return $data; //.$data;
 
 }

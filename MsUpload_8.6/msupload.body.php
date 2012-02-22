@@ -1,18 +1,4 @@
 <?php
-/**
- * Body file for extension MsUpload.
- *  
- * @author Martin Schwindl  <martin.schwindl@ratin.de> 
- * @copyright © 2012 by Martin Schwindl
- *
- * @licence GNU General Public Licence 2.0 or later
- */
-
-if( !defined( 'MEDIAWIKI' ) ) {
-  echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
-  die();
-}
-
 $wgAjaxExportList[] = 'wfMsUploadCheck';
 function wfMsUploadCheck($filename){
   global $wgFileExtensions,$wgMSU_PictureExt;
@@ -30,6 +16,12 @@ function wfMsUploadCheck($filename){
   return '1';
 }
 
+$wgAjaxExportList[] = 'wfMsUploadDoAjax';
+function wfMsUploadDoAjax($file) {
+     
+    global $wgUser;
+    return  substr($wgUser->editToken(),2);
+}
 
 $wgAjaxExportList[] = 'wfMsUploadSaveKat';
 function wfMsUploadSaveKat($name,$kat) {

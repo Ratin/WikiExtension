@@ -1,78 +1,70 @@
 <?php
-$dir = dirname(__FILE__).'/';
-
-if(! defined('MEDIAWIKI')) {
-	#die("This is a MediaWiki extension and can not be used standalone.\n");
+# Setup and Hooks for the MsUpload extension
+if( !defined( 'MEDIAWIKI' ) ) {
+ 	echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
+ 	die( 1 );
 }
 
+## Register extension setup hook and credits:
 $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsUpload',
 	'url'  => 'http://www.ratin.de/msupload.html',
 	'description' => 'Diese Extension macht Uploads/Multiuploads direkt im Editor möglich',
-	'version' => '8.6',
+	'version' => '8.8.0',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin',
 );
 
-$wgAvailableRights[] = 'msupload';
-
+$dir = dirname(__FILE__).'/';
+//$wgAvailableRights[] = 'msupload';
+$wgExtensionMessagesFiles['msupload'] = $dir . 'msupload.i18n.php';
 $wgHooks['EditPage::showEditForm:initial'][] = 'MSLSetup';
 require_once($dir.'msupload.body.php');
-  
+//$wgAutoloadClasses['msupload'] = $dir . 'msupload.body.php';
 
+
+$wgResourceModules['ext.MsUpload'] = array(
+        // JavaScript and CSS styles.
+        'scripts' => array( 'js/msupload.insert.js', 'js/plupload/plupload.full.js', 'js/msupload.js' ),
+        'styles' => array( 'css/jquery.css', 'css/msupload.css' ),
+        // When your module is loaded, these messages will be available through mw.msg()
+        'messages' => array( 'msu-button_title', 'msu-insert_link', 'msu-insert_gallery', 'msu-insert_picture', 'msu-insert_movie', 'msu-cancel_upload', 'msu-upload_possible', 'msu-ext_not_allowed', 'msu-upload_this', 'msu-upload_all' ),
+ 
+        'dependencies' => array( 'jquery.ui.progressbar' ),
+        // subdir relative to "/extensions"
+        'localBasePath' => dirname( __FILE__ ),
+        'remoteExtPath' => 'MsUpload'
+);
+
+ 
 function MSLSetup() {
 
-  global $wgOut, $wgScriptPath,$wgFrameworkLoaded,$wgTitle;
-  global $wgVersion;
-
-  $version = explode(".", $wgVersion); #$version[0] = 1; $version[1] = 17; $version[2] = 0;
+  global $wgOut, $wgScriptPath;
+  //global $wgVersion;
+  //$version = explode(".", $wgVersion); #$version[0] = 1; $version[1] = 17; $version[2] = 0;
   $path =  $wgScriptPath.'/extensions/MsUpload';
+  $dir = dirname(__FILE__).'/';
+  
+  //load module
+  $wgOut->addModules( 'ext.MsUpload' );
   
   global $wgMSU_ShowAutoKat, $wgMSU_AutoIndex, $wgMSU_CheckedAutoKat, $wgMSL_FileTypes, $wgJsMimeType, $wgMSU_debug;
   
   $use_MsLinks = 'false';
-  $autoKat = BoolToText($wgMSU_ShowAutoKat);
-  $autoIndex = 'false'; #BoolToText($wgMSU_AutoIndex);
-  $autoChecked = BoolToText($wgMSU_CheckedAutoKat);
-  $debugMode = BoolToText($wgMSU_debug);
-  
   if(isset($wgMSL_FileTypes)){$use_MsLinks = 'true';} //check whether the extension MsLinks is installed
-  
-  $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">
-  			var path_msu = '$path';
-			var debugMode = $debugMode;
-  			var use_mslinks = $use_MsLinks;
-  			var autoKat = $autoKat;
-  			var autoIndex = $autoIndex;
-  			var autoChecked = $autoChecked;
-  		</script>\n" );
-			
-  #if(isset($wgTitle) AND $wgTitle->getArticleID()!=0){
-  #if($wgIsArticle)  
-   if($version[1] < '17'){  #framework bei versionen < 17 laden
-   
-      if (!$wgFrameworkLoaded){
-        $wgOut->addScriptFile($path.'/js/jquery.min.js' );
-        $wgFrameworkLoaded = true;  
-      }
-      $wgOut->addScriptFile($path.'/js/jquery.ui.progressbar.js' ); //progressbar
-      
-    } //if
+
     
-    $wgOut->addScriptFile($path.'/js/plupload.full.js' );
-  	$wgOut->addScriptFile( $path.'/js/msupload.js' );
-    $wgOut->addScriptFile( $path.'/js/msupload.insert.js' );
-    	
-    $wgOut->addLink( array(
-    			'rel' => 'stylesheet',
-    			'type' => 'text/css',
-    			'href' => $path.'/css/jquery.css'
-    ));
-	$wgOut->addLink( array(
-    			'rel' => 'stylesheet',
-    			'type' => 'text/css',
-    			'href' => $path.'/css/msupload.css'
-    ));
-  #}
+	$msu_vars = array(
+		'path' => $path,
+    	'use_mslinks' => $use_MsLinks,
+    	'autoKat' => BoolToText($wgMSU_ShowAutoKat),
+    	'autoIndex' => 'false', #BoolToText($wgMSU_AutoIndex);
+		'autoChecked' => BoolToText($wgMSU_CheckedAutoKat),
+		'debugMode' => BoolToText($wgMSU_debug)
+	);
+
+	$msu_vars = json_encode($msu_vars);
+	
+    $wgOut->addScript( "<script type=\"{$wgJsMimeType}\">var msu_vars = $msu_vars;</script>\n" );
   
   return true;
 }
