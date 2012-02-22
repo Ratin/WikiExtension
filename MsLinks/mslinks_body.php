@@ -1,38 +1,32 @@
 <?php
 
-function wfMsLinksRender(&$parser, $typ = '', $url = '', $beschreibung = '', $align = '') {
+function wfMsLinksRender($parser, $typ = '', $url = '', $beschreibung = '', $align = '') {
 	
   global $wgOut,$wgScriptPath,$wgFileTypes;
 	
-	  if (empty($typ)) {
-		return 'kein typ angegeben';
-	  } 
 	
-  $base = "Media";
-  $version = "";
+  if (empty($typ)) {
+	return 'kein typ angegeben';
+  } 
   
-  if($typ != "dlink") {
+  if($typ != "dlink" && $typ != "vlink") {
   
-    if($typ != "vlink") {  #wenn weder d noch v link, dann eins weiterschieben
-    $align = $beschreibung;
+	$align = $beschreibung;
     $beschreibung = $url;
     $url = $typ;
-    }
-    
-    $img = Image::newFromName($url);
-		  if ($img && $img->exists()) { #datei existiert 
-        $base = ":Image";
-      }
-    
-  
-  } //if
 
-    $img = Image::newFromName($url);
-		  
-    if ($img && $img->exists()) { #datei existiert 
-        $base = ":Image";
-    }
-     
+  } //if
+ 
+	try {
+       $title = Title::newFromText($url,NS_IMAGE);
+       $file = function_exists( 'wfFindFile' ) ? wfFindFile( $title ) : new Image( $title );
+       $base = (is_object( $file ) && $file->exists()) ? ":Image" : "Media";
+       #return $base;
+    } catch(Exception $e) {
+       #return $e->getMessage();
+       $base = "Media";
+    } 
+				
     $extension = strtolower(substr(strrchr ($url, "."), 1));
   
     if($beschreibung == "") {
@@ -40,9 +34,7 @@ function wfMsLinksRender(&$parser, $typ = '', $url = '', $beschreibung = '', $al
     $beschreibung = substr($url,0,(strlen($url)-(strlen($extension)+1))); // damit umlaute auch angezeigt werden
     }
 
-		$html = "[[$base:$url|$beschreibung]]";
-    
-    
+	$html = "[[$base:$url|$beschreibung]]";
     $bild = "<img src='$wgScriptPath/extensions/MsLinks/images/".$wgFileTypes['no']."'>";
     
     
@@ -53,11 +45,10 @@ function wfMsLinksRender(&$parser, $typ = '', $url = '', $beschreibung = '', $al
         $bild = "<img title='$extension' src='$wgScriptPath/extensions/MsLinks/images/$value'>"; 
       }
    
-    }
+    } //foreach
     } //if
     
     $bild = $parser->insertStripItem($bild, $parser->mStripState);
-    
     
     if($typ != "vlink" && $typ != "dlink") {
       $base = "Media";
@@ -65,16 +56,12 @@ function wfMsLinksRender(&$parser, $typ = '', $url = '', $beschreibung = '', $al
      
     $bild = "[[$base:$url|".$bild."]]";
 
-
 	
-	if ($align == "right") { 
-    $html = $html." ".$bild." ".$version;
+  if ($align == "right") { 
+    $html = $html." ".$bild;
   } else { #standardausrichtung
-    $html = $bild." ".$html." ".$version;
+    $html = $bild." ".$html;
   }
 
-  
   return $html;
- 
-
 }
