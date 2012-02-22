@@ -2,7 +2,7 @@
 
 function wfMsLinksRender($parser, $typ = '', $url = '', $beschreibung = '', $align = '') {
 	
-  global $wgOut,$wgScriptPath,$wgFileTypes;
+  global $wgOut,$wgScriptPath,$wgMSL_FileTypes;
 	
 	
   if (empty($typ)) {
@@ -35,11 +35,11 @@ function wfMsLinksRender($parser, $typ = '', $url = '', $beschreibung = '', $ali
     }
 
 	$html = "[[$base:$url|$beschreibung]]";
-    $bild = "<img src='$wgScriptPath/extensions/MsLinks/images/".$wgFileTypes['no']."'>";
+    $bild = "<img src='$wgScriptPath/extensions/MsLinks/images/".$wgMSL_FileTypes['no']."'>";
     
     
-    if (isset($wgFileTypes)){
-    foreach($wgFileTypes as $key => $value) 
+    if (isset($wgMSL_FileTypes)){
+    foreach($wgMSL_FileTypes as $key => $value) 
     { 
       if($key==$extension){
         $bild = "<img title='$extension' src='$wgScriptPath/extensions/MsLinks/images/$value'>"; 

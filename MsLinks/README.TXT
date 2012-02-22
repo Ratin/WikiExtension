@@ -1,6 +1,6 @@
 //Start----------------MsLinks
 require_once("$IP/extensions/MsLinks/mslinks.php");
-$wgFileTypes = array("no" => "no_icon.gif",
+$wgMSL_FileTypes = array("no" => "no_icon.gif",
                         "jpg" => "image_icon.png", 
                         "gif" => "image_icon.png", 
                         "bmp" => "image_icon.png", 
