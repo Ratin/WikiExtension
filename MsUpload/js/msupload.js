@@ -370,20 +370,19 @@ function build(file){
       	file.kat = false;
         if(wgNamespaceNumber==14){ //category page
         	
-        	file.kat = msu_vars.autoChecked; //vordefinieren
+        	if(msu_vars.autoChecked=='true')  file.kat = true; //predefine
+
         	$(document.createElement("input")).attr({
         		'class':'check_index',	
         		type: 'checkbox',
-        		'checked': autoChecked
-        		//name:'kat['+file.id+']',
+        		'checked': file.kat
         	}).change(function(e) {
 	        
-	          file.kat = this.checked; // speichern
+	          file.kat = this.checked; // save
 	        
 	        }).appendTo(file.li);
     	  	
     	  	$(document.createElement("span")).attr("class","check_span").text(wgPageName.replace(/_/g, " ")).appendTo(file.li); 
-    	  
    
         }
       } 
