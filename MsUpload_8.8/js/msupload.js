@@ -1,5 +1,3 @@
-var gallery_arr = new Array();
-
 $(document).ready(function () { //jquery       
 	// Check that the toolbar is available
 	if ( typeof $ != 'undefined' && typeof $.fn.wikiEditor != 'undefined' ) {
@@ -16,7 +14,6 @@ $(document).ready(function () { //jquery
     		var upload_container = $(document.createElement("div")).attr('id',"upload_container").insertAfter('#wikiEditor-ui-toolbar');
    			var upload_div = $(document.createElement("div")).attr("id","upload_div").appendTo(upload_container); 
 	        var container_msu = 'upload_container';
-	        $('#wikiEditor-ui-toolbar .tool .options').css('z-index', '2'); //headline dropdown
 	      
 	        
 	} else { //only standard editor
@@ -37,6 +34,11 @@ $(document).ready(function () { //jquery
     var start_button = $(document.createElement("a")).attr("id","upload_files").appendTo(upload_div).hide();
     var gallery_insert = $(document.createElement("a")).attr("id","gallery_insert").appendTo(upload_div).hide();
     
+    var gallery_arr = new Array();
+    
+    //if(mw.loader){
+    //  mw.loader.load('jquery.ui.progressbar');//damit spaeter die progressbar zur verfuegung steht 
+    //}
 
        var uploader = new plupload.Uploader({
     		//runtimes : 'html5,flash',
@@ -66,8 +68,8 @@ $(document).ready(function () { //jquery
     
     	uploader.bind('Init', function(up, params) {
     		status_div.html("<b>Debug</b> runtime: " + params.runtime + " drag/drop: "+ (!!up.features.dragdrop));
-    		if(msu_vars.debugMode == 'false') status_div.hide(); //hide status if debug mode is disabled
-
+    		if(msu_vars.debugMode==false){status_div.hide();} //hide status if debug mode is disabled
+    		
     		if(up.features.dragdrop){
 	        	
 	        	var upload_drop = $(document.createElement("div")).attr("id","upload_drop").attr("class","drop").insertAfter(status_div); 
@@ -94,7 +96,7 @@ $(document).ready(function () { //jquery
 	            file.li.warning = $(document.createElement("span")).attr("class","file-warning").appendTo(file.li);
 	            
 	            check_extension(file,uploader); 
-            	
+            
     		});
     		up.refresh(); // Reposition Flash/Silverlight
     	});
@@ -114,13 +116,14 @@ $(document).ready(function () { //jquery
       
      uploader.bind('StateChanged', function(up) {
 		//status_div.append(' :'+plupload.STARTED);
-		if(msu_vars.debugMode == 'true') console.log(up.state);
+		//console.log(up.state);
 	});
 
      uploader.bind('BeforeUpload', function(up, file) {
     	
     	$('#' + file.id + " div.file-progress-bar").progressbar({value: '1'});
     	$('#' + file.id + " span.file-progress-state").html("0%");
+    	
      });
       
      uploader.bind('UploadProgress', function(up, file) {
@@ -141,44 +144,18 @@ $(document).ready(function () { //jquery
     
      uploader.bind('FileUploaded', function(up, file, success) {
 
-		if(msu_vars.debugMode == 'true') console.log(success);
-		
-		
-		file.li.title.unbind('click');
-		file.li.title.unbind('mouseover');
-			
-        $('#' + file.id + " div.file-progress").fadeOut("slow");
-        $('#' + file.id + " div.file-progress-bar").fadeOut("slow");
-        $('#' + file.id + " span.file-progress-state").fadeOut("slow");
-            
-            
-		try{
-			result = jQuery.parseJSON( success.response );
-			//alert(result.upload.result);
-			/*{"upload":{"result":"Success",
-						"filename":"Msupload_v8.4.jpg",
-						"imageinfo":{
-							"timestamp":"2012-02-28T14:52:05Z",
-							"user":"L\u00fctz",
-							"userid":4,
-							"size":35491,
-							"width":865,
-							"height":292,
-							"parsedcomment":"MsUpload",
-							"comment":"MsUpload",
-							"url":"...",
-							"descriptionurl":"...",
-							"sha1":"...",
-							"metadata":...,
-							"mime":"image\/jpeg",
-							"mediatype":"BITMAP",
-							"bitdepth":8
-			}}}*/
-			
+			console.log(success);
+
+    		file.li.title.unbind('click');
+			file.li.title.unbind('mouseover');
 			file.li.type.addClass('ok');
             file.li.addClass('green');
             file.li.warning.fadeOut("slow");
 
+            $('#' + file.id + " div.file-progress").fadeOut("slow");
+            $('#' + file.id + " div.file-progress-bar").fadeOut("slow");
+            $('#' + file.id + " span.file-progress-state").fadeOut("slow");
+            	
     		if(file.kat == true){ //soll die Kategorie gesetzt werden
 		        
 		         sajax_do_call( 'wfMsUploadSaveKat', [file.name,wgPageName],function (response) {
@@ -188,6 +165,7 @@ $(document).ready(function () { //jquery
 		     } //if
     		
     		$(document.createElement("a")).text(mw.msg('msu-insert_link')).click(function(e) { //click
+  			   //unescape('als Link einf\u00Fcgen')
   			    if(msu_vars.use_mslinks == 'true'){
   			    	msu_vorlage_insert('{{#l:'+file.name+'}}','',''); // insert link		
   			    } else {
@@ -196,7 +174,7 @@ $(document).ready(function () { //jquery
   			    
         	}).appendTo(file.li);
     		
-            if (file.group == "pic"){
+            if (file.extension == "pic"){
         		  
         		gallery_arr.push(file.name);	
 
@@ -204,8 +182,11 @@ $(document).ready(function () { //jquery
         		  if(gallery_arr.length== 2){ //only at first time add click function
 	        		  		gallery_insert.click(function(e) { //click
 	  			
-	  							add_gallery(); //to take always the actual list
-
+								gallery_text = "Image:";
+								gallery_text += gallery_arr.join("\nImage:");
+								gallery_text +='\n';
+								msu_vorlage_insert(gallery_text,'<gallery>\n\n','\n</gallery>\n'); 
+								
 	        				}).text(mw.msg('msu-insert_gallery')).show();
         		  } else if(gallery_arr.length< 2) {
         		  		
@@ -220,26 +201,18 @@ $(document).ready(function () { //jquery
         		}).appendTo(file.li);
         		
                 
-        	} else if (file.group == "mov") { //mov  
+        	} else if (file.extension == "mov") { //mov  
         		  
         		
         		$(document.createElement("span")).text(' | ').appendTo(file.li);
         		$(document.createElement("a")).text(mw.msg('msu-insert_movie')).click(function(e) { //click
-
+        			//unescape('als Film einf\u00Fcgen')
         			msu_vorlage_insert('[[Media:'+file.name+']]','','');
         			
         		}).appendTo(file.li);
 
         	} //movie
-        	
-        	
-        	
-        }catch(e){//try
-			
-			file_error(file,"Error: " + success.response.replace(/(<([^>]+)>)/ig,"")); //remove html tags
-			file.li.type.addClass('error');
-
-		}			  
+        		  
      });
     	
     	
@@ -259,70 +232,66 @@ $(document).ready(function () { //jquery
 
 });//funktion
 
-function add_gallery(){
-	gallery_text = "Image:";
-	gallery_text += gallery_arr.join("\nImage:");
-	gallery_text +='\n';
-	msu_vorlage_insert(gallery_text,'<gallery>\n\n','\n</gallery>\n'); 
-}
-
 function check_extension(file,uploader){
-		if(msu_vars.debugMode == 'true') console.log(file);
-		
+        //file_li = file.li;
         file.li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
-		file.extension = file.name.split('.').pop().toLowerCase();
 
-		if($.inArray(file.extension, wgFileExtensions) != -1) {
-		    
-		    switch(file.extension) {
+        sajax_do_call( 'wfMsUploadCheck', [file.name],
+        function (response) {
 
-       	 	  case 'jpg': case 'jpeg': case 'png': case 'gif': case 'bmp': case 'tif': case 'tiff': //pictures
-       	 		file.group = "pic";
-       	 		file.li.type.addClass('picture');
-            	break;
-			  case 'mov':
-       	 		file.group = "mov";
-             	break;
-        	//case 'pdf':
-            /* handle */
-            //break;
-    		}
-    		
+        file.extension = response.responseText;
+        
+        if (file.extension == 1 || file.extension =='pic'){
+
+
             check_file(file.name,file.li);
-                   				
-	        file.li.cancel = $(document.createElement("span")).attr("title",mw.msg('msu-cancel_upload')).click(function(e) {
+            
+                //Datei ist ein Bild
+                if(file.extension == 'pic'){
+                  file.li.type.addClass('picture');
+                } 
+        			
+              		
+	            file.li.cancel = $(document.createElement("span")).attr("class","file-cancel").attr("title",mw.msg('msu-cancel_upload')).click(function(e) {
 	                file.li.fadeOut("slow");
-
-	                if (file.group == "pic"){
-					 	var idx = gallery_arr.indexOf(file.name); // Find the index
-					 	if(idx!=-1) gallery_arr.splice(idx, 1); // Remove it if really found!
-        			}
-        			uploader.removeFile(file);
-	        }).attr("class","file-cancel").appendTo(file.li);
+	                uploader.removeFile(file);
+	            }).appendTo(file.li);
 	            
-            build(file); // alles aufbauen
+            	build(file); // alles aufbauen
+
             	
+        	 } else if (file.extension == "") { //überprüfung hat zu lange gedauert
+           
+               check_extension(file,firsttime);
+           	
+        	 } else { // falscher Dateityp
 
-      } else { // falscher Dateityp
+            
+             	file.li.warning.text(mw.msg('msu-ext_not_allowed')+ ' ' +response.responseText);
+            
+            	file.li.type.addClass('document');
+            	file.li.addClass('yellow');
+            	uploader.removeFile(file); //damit Datei nicht mehr hochgeladen wird
+            	
+            	file.li.click(function(e) { //bei klick li löschen
+	                file.li.fadeOut("slow");
+	            })
 
-            file_error(file,mw.msg('msu-ext_not_allowed')+' '+wgFileExtensions.join(','));
-            uploader.removeFile(file); //damit Datei nicht mehr hochgeladen wird
-             	
-      }//else
+           }//else
+    });
 }
 
 function check_file(filename,file_li){
-		 	
+
           file_li.warning.html("<img src='"+msu_vars.path+"/images/loading.png'>");
           sajax_do_call( 'SpecialUpload::ajaxGetExistsWarning', [filename], 
-        		function (result) {
-        				
-        		warning = result.responseText;
+        			function (result) {
+        				warning = result.responseText;
 
-        		if ( warning == '' || warning == '&nbsp;' ||warning =='&#160;') {
+        				if ( warning == '' || warning == '&nbsp;' ||warning =='&#160;') {
         				file_li.warning.text(mw.msg('msu-upload_possible'));
 
-        		} else {
+        				} else {
                 // errorhandling
                 warning = warning.substring(8);
                 warning = warning.substring(0,warning.length-(warning.length-40));
@@ -341,18 +310,6 @@ function check_file(filename,file_li){
                 } //else
        				
         	});
-}
-
-function file_error(file,error_text){
-	
-	file.li.warning.text(error_text);
-    //file.li.type.addClass('document');
-    file.li.addClass('yellow');
-
-    file.li.click(function(e) { //bei klick li löschen
-	   file.li.fadeOut("slow");
-	})
-	
 }
 
 

@@ -36,7 +36,7 @@ $wgExtensionCredits['parserhook'][] = array(
 	'name' => 'MsLinks',
 	'url'  => 'http://www.ratin.de/mslinks.html',
 	'description' => 'Erzeugt einem Link mit dem passenden Icon sowie einen Direkt- und Versionslink',
-	'version' => '2.6',
+	'version' => '2.7',
 	'author' => '[mailto:info@ratin.de info@ratin.de] | Ratin'
 );
  

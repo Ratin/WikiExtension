@@ -68,11 +68,6 @@
   background: url(../images/tick.png) no-repeat 0 0;
 }
 
-#upload_list .file .error {
-  background: url(../images/error.png) no-repeat 0 0;
-}
-
-
 #upload_list .file .file-title {
   font-weight: bold;
   margin-left:5px;
@@ -186,6 +181,21 @@ a.hover {
 	color: red;
 }
 
+
+#upload_list .file-invalid {
+	cursor: pointer;
+	color: #514721;
+  	border: 1px solid #eee;
+	padding: 2px 0px 2px 48px;
+	line-height: 2em;
+	background: url(../images/error.png) no-repeat 24px 5px;
+}
+
+#upload_list .file-invalid span {
+	background-color: #fff6bf;
+	padding:1px;
+}
+ 
 
 #upload_list .file span,
 #upload_list .file a {

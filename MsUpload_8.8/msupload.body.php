@@ -3,7 +3,7 @@
  * Body file for extension MsUpload.
  *  
  * @author Martin Schwindl  <martin.schwindl@ratin.de> 
- * @copyright ï¿½ 2012 by Martin Schwindl
+ * @copyright © 2012 by Martin Schwindl
  *
  * @licence GNU General Public Licence 2.0 or later
  */
@@ -12,6 +12,24 @@ if( !defined( 'MEDIAWIKI' ) ) {
   echo( "This file is an extension to the MediaWiki software and cannot be used standalone.\n" );
   die();
 }
+
+$wgAjaxExportList[] = 'wfMsUploadCheck';
+function wfMsUploadCheck($filename){
+  global $wgFileExtensions,$wgMSU_PictureExt;
+  
+  $extension = strtolower(substr(strrchr ($filename, "."), 1));
+  
+  if (!in_array($extension, $wgFileExtensions)){
+      return implode(',', $wgFileExtensions);  
+  }
+
+  if (in_array($extension, $wgMSU_PictureExt)){
+  return "pic";
+  } 	
+
+  return '1';
+}
+
 
 $wgAjaxExportList[] = 'wfMsUploadSaveKat';
 function wfMsUploadSaveKat($name,$kat) {

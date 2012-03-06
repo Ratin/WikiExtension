@@ -30,8 +30,11 @@ function wfMsLinksRender($parser, $typ = '', $url = '', $beschreibung = '', $ali
     $extension = strtolower(substr(strrchr ($url, "."), 1));
   
     if($beschreibung == "") {
-    #$beschreibung = $file_info['filename'];
-    $beschreibung = substr($url,0,(strlen($url)-(strlen($extension)+1))); // damit umlaute auch angezeigt werden
+    	if(strlen($extension)!=0){ 
+    		$beschreibung = substr($url,0,(strlen($url)-(strlen($extension)+1))); // damit umlaute auch angezeigt werden
+    	} else { //ist garkeine extension angegeben z.b. {{#l:fehlt noch}}
+    		$beschreibung = $url;
+    	}
     }
 
 	$html = "[[$base:$url|$beschreibung]]";
